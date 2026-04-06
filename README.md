@@ -4,7 +4,7 @@
 
 Sistema RAG (Retrieval-Augmented Generation) completamente local para consultar documentos institucionales sin enviar información a la nube.
 
-Presentado en el podcast ["Un Show para TI"](https://www.youtube.com/live/xajAFAHb75E) — episodio sobre IA local en instituciones públicas.
+
 
 ---
 
