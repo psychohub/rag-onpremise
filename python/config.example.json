@@ -1,0 +1,11 @@
+{
+  "_comentario": "Copiar este archivo como config.json y ajustar los valores",
+
+  "documents_folder": "C:\\MisDocumentos\\ParaIndexar",
+  "qdrant_url": "http://localhost:6333",
+  "ollama_url": "http://localhost:11434",
+  "collection_name": "mis-documentos",
+  "embedding_model": "nomic-embed-text",
+  "chunk_size": 500,
+  "chunk_overlap": 50
+}
