@@ -60,11 +60,14 @@ namespace RagOnPremise.Services
                 var cacheKey = BuildCacheKey(collection);
 
                 // 3. Buscar en caché semántico (limitado al namespace)
-                var (cacheHit, cachedResponse) = await SearchCacheAsync(
-                    cacheKey, embedding, request.Question);
+                if (_settings.SemanticCacheEnabled)
+                {
+                    var (cacheHit, cachedResponse) = await SearchCacheAsync(
+                        cacheKey, embedding, request.Question);
 
-                if (cacheHit && cachedResponse != null)
-                    return cachedResponse;
+                    if (cacheHit && cachedResponse != null)
+                        return cachedResponse;
+                }
 
                 // 4. Buscar chunks relevantes en Qdrant
                 var sources = await SearchQdrantAsync(embedding, collection, cancellationToken);
@@ -82,7 +85,10 @@ namespace RagOnPremise.Services
                 };
 
                 // 7. Guardar en el namespace correcto del caché
-                await SaveToCacheAsync(cacheKey, embedding, request.Question, response);
+                if (_settings.SemanticCacheEnabled)
+                {
+                    await SaveToCacheAsync(cacheKey, embedding, request.Question, response);
+                }
 
                 return response;
             }

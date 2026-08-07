@@ -23,5 +23,23 @@ namespace RagOnPremise.Models
 
         /// <summary>Cantidad de chunks a recuperar de Qdrant por consulta.</summary>
         public int MaxResults { get; set; } = 5;
+
+        /// <summary>
+        /// Habilita el caché semántico. Default: false.
+        ///
+        /// ADVERTENCIA DE SEGURIDAD: El caché semántico sirve respuestas previamente
+        /// generadas cuando el embedding de la nueva pregunta está cerca de una
+        /// consulta cacheada (similitud coseno sobre el umbral configurado).
+        /// Pruebas empíricas con nomic-embed-text sobre texto administrativo español
+        /// muestran que esto es INSEGURO en esa combinación: pares adversos
+        /// (negaciones, cambios de entidad, cambios temporales) alcanzan similitud
+        /// coseno de hasta 0.9984, mientras que paráfrasis genuinas se quedan bajo
+        /// 0.91. Un hit del caché nunca llega al LLM, por lo que las respuestas
+        /// incorrectas se sirven silenciosamente.
+        ///
+        /// Habilitar solo si se ha verificado que el caché es seguro para el corpus
+        /// y modelo de embeddings específicos. Ver docs/experiments/threshold-safety.md
+        /// </summary>
+        public bool SemanticCacheEnabled { get; set; } = false;
     }
 }

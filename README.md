@@ -149,16 +149,68 @@ builder.Services.AddScoped<IRagService, RagService>();
 
 Agregar en `appsettings.json`:
 
+Ver la configuración completa de `RagSettings` en la sección 
+[Configuración](#configuración) más abajo.
+
+---
+
+## Configuración
+
+El proyecto tiene **dos archivos de configuración independientes** — 
+uno para el ingestor Python y otro para la API .NET. Comparten cuatro 
+claves que deben mantenerse sincronizadas manualmente, o el sistema 
+falla en silencio (el ingestor guarda en una colección o modelo distinto 
+al que la API busca).
+
+### Ingestor Python — `python/config.json`
+
+Copiar `python/config.example.json` como `python/config.json` y ajustar:
+
 ```json
-"RagSettings": {
-  "QdrantUrl": "http://localhost:6333",
-  "OllamaUrl": "http://localhost:11434",
-  "CollectionName": "mis-documentos",
-  "EmbeddingModel": "nomic-embed-text",
-  "ChatModel": "mistral",
-  "MaxResults": 5
+{
+  "documents_folder": "C:\\MisDocumentos\\ParaIndexar",
+  "qdrant_url": "http://localhost:6333",
+  "ollama_url": "http://localhost:11434",
+  "collection_name": "mis-documentos",
+  "embedding_model": "nomic-embed-text",
+  "chunk_size": 500,
+  "chunk_overlap": 50
 }
 ```
+
+### API .NET — sección `RagSettings` de `appsettings.json`
+
+```json
+{
+  "RagSettings": {
+    "QdrantUrl": "http://localhost:6333",
+    "OllamaUrl": "http://localhost:11434",
+    "CollectionName": "mis-documentos",
+    "EmbeddingModel": "nomic-embed-text",
+    "ChatModel": "mistral",
+    "MaxResults": 5,
+    "SemanticCacheEnabled": false
+  }
+}
+```
+
+Ver [advertencia sobre `SemanticCacheEnabled`](#caché-semántico-desactivado-por-defecto) 
+más abajo.
+
+### ⚠️ Claves compartidas — sincronización manual
+
+Cuatro claves deben tener **el mismo valor** en los dos archivos, o el 
+retrieval falla silenciosamente:
+
+| Ingestor Python | API .NET |
+|---|---|
+| `qdrant_url` | `QdrantUrl` |
+| `ollama_url` | `OllamaUrl` |
+| `collection_name` | `CollectionName` |
+| `embedding_model` | `EmbeddingModel` |
+
+Si cambiás una en un lado, cambiala en el otro. No hay verificación 
+automática de sincronización.
 
 ---
 
@@ -242,22 +294,46 @@ NO inventes datos que no estén en el contexto.
 
 ---
 
-## 🚀 Caché semántico
+## Caché semántico (desactivado por defecto)
 
-Para mejorar el tiempo de respuesta, el `RagService` incluye
-caché semántico usando similitud coseno:
+El `RagService` incluye una implementación de caché semántico basada en 
+similitud coseno entre embeddings de consultas, pero **está desactivado 
+por defecto** (`SemanticCacheEnabled: false`).
 
-- **Umbral:** 0.92 (preguntas muy similares usan la respuesta cacheada)
-- **TTL:** 24 horas
-- **Máximo:** 200 entradas
-- **Thread-safe:** SemaphoreSlim
+### Por qué está desactivado
 
-```
-Primera consulta:  ~90 segundos (Mistral en CPU)
-Segunda consulta similar: < 1 segundo (desde caché)
-```
+Pruebas empíricas con `nomic-embed-text` sobre texto administrativo en 
+español muestran que no existe umbral coseno seguro que distinga 
+paráfrasis genuinas de pares adversos (negaciones, cambios de entidad, 
+cambios temporales):
 
-⚠️ **Importante:** limpiar el caché al cambiar de modelo LLM.
+- Similitud coseno máxima entre pares adversos: **0.9984**
+- Similitud coseno mínima entre paráfrasis genuinas: **0.7470**
+
+Cualquier umbral suficientemente alto para rechazar los pares adversos 
+también rechaza las paráfrasis genuinas. Y como un hit del caché nunca 
+llega al LLM, las respuestas incorrectas se sirven silenciosamente.
+
+El experimento completo (metodología, 20 pares de prueba, tabla de 
+resultados por categoría, discusión y decisión) está en 
+[docs/experiments/threshold-safety.md](docs/experiments/threshold-safety.md).
+
+### Cuándo se puede habilitar
+
+Poner `"SemanticCacheEnabled": true` en `appsettings.json` **solo si** 
+se ha verificado que la combinación específica de embedder + dominio 
+no presenta el problema descrito arriba. Correr el script del 
+experimento sobre corpus propio antes de decidir.
+
+La lógica del caché (particionado por colección, modelo, prompt version 
+y top-K) está en el código para quienes quieran auditarla o adaptarla, 
+pero el default seguro es `false`.
+
+### Crédito
+
+El experimento que motivó esta decisión surgió del comentario de 
+[Giulio D'Erme](https://dev.to/gde03/comment/3c9ni) en el hilo de 
+dev.to del artículo original.
 
 ---
 
