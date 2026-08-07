@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using RagOnPremise.Models;
+using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
 
 namespace RagOnPremise.Services
@@ -8,51 +9,71 @@ namespace RagOnPremise.Services
     /// Servicio RAG que orquesta el flujo completo:
     /// Pregunta → Embedding → Búsqueda Qdrant → Prompt → LLM → Respuesta
     ///
-    /// Incluye caché semántico para respuestas instantáneas en la segunda consulta.
+    /// Incluye caché semántico particionado por colección, modelos y prompt version.
+    /// Propaga CancellationToken para liberar recursos si el cliente desconecta.
     /// </summary>
     public class RagService : IRagService
     {
         private readonly RagSettings _settings;
         private readonly ILogger<RagService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         // ── Caché semántico ───────────────────────────────────────────────────
-        private static readonly List<SemanticCacheEntry> _cache = new();
+        // Particionado por (collection, embeddingModel, chatModel, promptVersion, topK).
+        // Esto elimina el vector de fuga cross-collection: la similitud coseno
+        // solo se calcula DENTRO de un mismo namespace.
+        private static readonly ConcurrentDictionary<string, List<SemanticCacheEntry>> _cache = new();
         private static readonly SemaphoreSlim _cacheLock = new(1, 1);
         private const float SIMILARITY_THRESHOLD = 0.92f;
-        private const int CACHE_MAX_ENTRIES = 200;
+        private const int CACHE_MAX_ENTRIES_PER_PARTITION = 200;
         private static readonly TimeSpan CACHE_TTL = TimeSpan.FromHours(24);
 
-        public RagService(IOptions<RagSettings> settings, ILogger<RagService> logger)
+        // Versión del prompt. Incrementar al cambiar el template.
+        // Al cambiar, las entradas viejas del caché quedan en un namespace
+        // distinto y dejan de servirse — no hace falta borrar manualmente.
+        private const string PROMPT_VERSION = "v1";
+
+        public RagService(
+            IOptions<RagSettings> settings,
+            IHttpClientFactory httpClientFactory,
+            ILogger<RagService> logger)
         {
             _settings = settings.Value;
+            _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
 
         // ── Consulta principal ────────────────────────────────────────────────
 
-        public async Task<RagQueryResponse> QueryAsync(RagQueryRequest request)
+        public async Task<RagQueryResponse> QueryAsync(
+            RagQueryRequest request,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                // 1. Generar embedding de la pregunta
-                var embedding = await GetEmbeddingAsync(request.Question);
+                var collection = request.Collection ?? _settings.CollectionName;
 
-                // 2. Buscar en caché semántico
+                // 1. Generar embedding de la pregunta
+                var embedding = await GetEmbeddingAsync(request.Question, cancellationToken);
+
+                // 2. Construir la key del namespace del caché
+                var cacheKey = BuildCacheKey(collection);
+
+                // 3. Buscar en caché semántico (limitado al namespace)
                 var (cacheHit, cachedResponse) = await SearchCacheAsync(
-                    embedding, request.Question);
+                    cacheKey, embedding, request.Question);
 
                 if (cacheHit && cachedResponse != null)
                     return cachedResponse;
 
-                // 3. Buscar chunks relevantes en Qdrant
-                var collection = request.Collection ?? _settings.CollectionName;
-                var sources = await SearchQdrantAsync(embedding, collection);
+                // 4. Buscar chunks relevantes en Qdrant
+                var sources = await SearchQdrantAsync(embedding, collection, cancellationToken);
 
-                // 4. Construir contexto con los chunks
+                // 5. Construir contexto con los chunks
                 var context = string.Join("\n\n", sources.Select(s => s.Text));
 
-                // 5. Generar respuesta con el LLM
-                var answer = await GenerateAnswerAsync(request.Question, context);
+                // 6. Generar respuesta con el LLM
+                var answer = await GenerateAnswerAsync(request.Question, context, cancellationToken);
 
                 var response = new RagQueryResponse
                 {
@@ -60,10 +81,16 @@ namespace RagOnPremise.Services
                     Sources = sources
                 };
 
-                // 6. Guardar en caché para futuras consultas similares
-                await SaveToCacheAsync(embedding, request.Question, response);
+                // 7. Guardar en el namespace correcto del caché
+                await SaveToCacheAsync(cacheKey, embedding, request.Question, response);
 
                 return response;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation(
+                    "RAG query cancelada por el cliente: {Question}", request.Question);
+                throw;
             }
             catch (Exception ex)
             {
@@ -72,41 +99,69 @@ namespace RagOnPremise.Services
             }
         }
 
-        public async Task<bool> TestConnectionAsync()
+        public async Task<bool> TestConnectionAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-                var response = await client.GetAsync(_settings.OllamaUrl);
+                var client = _httpClientFactory.CreateClient("ollama-embedding");
+                var response = await client.GetAsync(_settings.OllamaUrl, cancellationToken);
                 return response.IsSuccessStatusCode;
             }
             catch { return false; }
         }
 
+        // ── Cache key ─────────────────────────────────────────────────────────
+        //
+        // La key define el "namespace" del caché. Dos entradas con la misma
+        // similitud semántica pero distinta key nunca se comparten.
+        //
+        // Componentes:
+        //   - collection: para no filtrar respuestas de una colección
+        //     en consultas a otra.
+        //   - embeddingModel: si cambia el modelo de embeddings, los vectores
+        //     viejos no son comparables con los nuevos.
+        //   - chatModel: si cambia el LLM, las respuestas viejas fueron
+        //     generadas por otro modelo — no queremos que sigan sirviéndose.
+        //   - promptVersion: si cambia el template del prompt, cambia la
+        //     naturaleza de la respuesta esperada.
+        //   - topK: cambia cuántos chunks se recuperan, por tanto la respuesta.
+
+        private string BuildCacheKey(string collection)
+        {
+            return string.Join("|",
+                collection,
+                _settings.EmbeddingModel,
+                _settings.ChatModel,
+                PROMPT_VERSION,
+                $"k={_settings.MaxResults}");
+        }
+
         // ── Embedding ─────────────────────────────────────────────────────────
 
-        private async Task<float[]> GetEmbeddingAsync(string text)
+        private async Task<float[]> GetEmbeddingAsync(
+            string text, CancellationToken cancellationToken)
         {
             var payload = new { model = _settings.EmbeddingModel, prompt = text };
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(
+                json, System.Text.Encoding.UTF8, "application/json");
 
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            var client = _httpClientFactory.CreateClient("ollama-embedding");
             var response = await client.PostAsync(
-                $"{_settings.OllamaUrl}/api/embeddings", content);
+                $"{_settings.OllamaUrl}/api/embeddings", content, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content
-                .ReadFromJsonAsync<EmbeddingResponse>();
+                .ReadFromJsonAsync<EmbeddingResponse>(cancellationToken: cancellationToken);
             return result?.Embedding ?? Array.Empty<float>();
         }
 
         // ── Búsqueda en Qdrant ────────────────────────────────────────────────
         // IMPORTANTE: Usar siempre HttpClient REST directo.
-        // El SDK oficial de Qdrant para .NET usa gRPC y falla con HTTP/1.1
+        // El SDK oficial de Qdrant para .NET usa gRPC y falla con HTTP/1.1.
 
         private async Task<List<RagSource>> SearchQdrantAsync(
-            float[] embedding, string collection)
+            float[] embedding, string collection, CancellationToken cancellationToken)
         {
             var payload = new
             {
@@ -117,16 +172,16 @@ namespace RagOnPremise.Services
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
-            var content = new StringContent(json,
-                System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(
+                json, System.Text.Encoding.UTF8, "application/json");
 
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            var client = _httpClientFactory.CreateClient("qdrant");
             var response = await client.PostAsync(
                 $"{_settings.QdrantUrl}/collections/{collection}/points/search",
-                content);
+                content, cancellationToken);
             response.EnsureSuccessStatusCode();
 
-            var resultJson = await response.Content.ReadAsStringAsync();
+            var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
             var result = System.Text.Json.JsonSerializer
                 .Deserialize<QdrantSearchResponse>(resultJson);
 
@@ -140,10 +195,12 @@ namespace RagOnPremise.Services
 
         // ── Generación con LLM ────────────────────────────────────────────────
         // IMPORTANTE: Mistral en CPU tarda 60-120 segundos.
-        // El timeout por defecto de HttpClient (100s) no alcanza.
-        // Configurar explícitamente 300 segundos.
+        // El cliente "ollama-generation" se configura con Timeout = 300s
+        // en Program.cs. Además, propagamos CancellationToken para liberar
+        // recursos si el cliente desconecta durante la generación.
 
-        private async Task<string> GenerateAnswerAsync(string question, string context)
+        private async Task<string> GenerateAnswerAsync(
+            string question, string context, CancellationToken cancellationToken)
         {
             var prompt = $"""
                 Eres un asistente especializado en documentos institucionales.
@@ -173,44 +230,42 @@ namespace RagOnPremise.Services
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
-            var content = new StringContent(json,
-                System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(
+                json, System.Text.Encoding.UTF8, "application/json");
 
-            // Timeout de 300s — Mistral en CPU puede tardar 60-120s
-            using var client = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(300)
-            };
-
+            var client = _httpClientFactory.CreateClient("ollama-generation");
             var response = await client.PostAsync(
-                $"{_settings.OllamaUrl}/api/generate", content);
+                $"{_settings.OllamaUrl}/api/generate", content, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content
-                .ReadFromJsonAsync<OllamaGenerateResponse>();
+                .ReadFromJsonAsync<OllamaGenerateResponse>(cancellationToken: cancellationToken);
             return result?.Response ?? "No se pudo generar respuesta.";
         }
 
         // ── Caché semántico ───────────────────────────────────────────────────
 
         private async Task<(bool found, RagQueryResponse? response)>
-            SearchCacheAsync(float[] embedding, string question)
+            SearchCacheAsync(string cacheKey, float[] embedding, string question)
         {
             await _cacheLock.WaitAsync();
             try
             {
-                var now = DateTime.UtcNow;
-                _cache.RemoveAll(e => now - e.CreatedAt > CACHE_TTL);
+                if (!_cache.TryGetValue(cacheKey, out var partition))
+                    return (false, null);
 
-                foreach (var entry in _cache)
+                var now = DateTime.UtcNow;
+                partition.RemoveAll(e => now - e.CreatedAt > CACHE_TTL);
+
+                foreach (var entry in partition)
                 {
                     float similarity = CosineSimilarity(embedding, entry.Embedding);
 
                     if (similarity >= SIMILARITY_THRESHOLD)
                     {
                         _logger.LogInformation(
-                            "[Cache HIT] Similitud: {Sim:F4} | Original: {Q}",
-                            similarity, entry.OriginalQuestion);
+                            "[Cache HIT] Namespace: {Key} | Similitud: {Sim:F4} | Original: {Q}",
+                            cacheKey, similarity, entry.OriginalQuestion);
 
                         return (true, new RagQueryResponse
                         {
@@ -225,15 +280,17 @@ namespace RagOnPremise.Services
         }
 
         private async Task SaveToCacheAsync(
-            float[] embedding, string question, RagQueryResponse response)
+            string cacheKey, float[] embedding, string question, RagQueryResponse response)
         {
             await _cacheLock.WaitAsync();
             try
             {
-                if (_cache.Count >= CACHE_MAX_ENTRIES)
-                    _cache.RemoveAt(0);
+                var partition = _cache.GetOrAdd(cacheKey, _ => new List<SemanticCacheEntry>());
 
-                _cache.Add(new SemanticCacheEntry
+                if (partition.Count >= CACHE_MAX_ENTRIES_PER_PARTITION)
+                    partition.RemoveAt(0);
+
+                partition.Add(new SemanticCacheEntry
                 {
                     Embedding = embedding,
                     Answer = response.Answer,
@@ -242,7 +299,9 @@ namespace RagOnPremise.Services
                     CreatedAt = DateTime.UtcNow
                 });
 
-                _logger.LogInformation("[Cache SAVE] Entradas: {Count}", _cache.Count);
+                _logger.LogInformation(
+                    "[Cache SAVE] Namespace: {Key} | Entradas en partición: {Count}",
+                    cacheKey, partition.Count);
             }
             finally { _cacheLock.Release(); }
         }
@@ -272,11 +331,12 @@ namespace RagOnPremise.Services
 
         public static object GetCacheStats() => new
         {
-            total_entries = _cache.Count,
-            oldest_entry = _cache.Count > 0 ? _cache.Min(e => e.CreatedAt) : (DateTime?)null,
+            total_partitions = _cache.Count,
+            total_entries = _cache.Values.Sum(p => p.Count),
             ttl_hours = CACHE_TTL.TotalHours,
-            max_entries = CACHE_MAX_ENTRIES,
-            similarity_threshold = SIMILARITY_THRESHOLD
+            max_entries_per_partition = CACHE_MAX_ENTRIES_PER_PARTITION,
+            similarity_threshold = SIMILARITY_THRESHOLD,
+            prompt_version = PROMPT_VERSION
         };
     }
 
