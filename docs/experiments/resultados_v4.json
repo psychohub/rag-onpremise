@@ -1,0 +1,723 @@
+{
+  "generated_at": "2026-08-08T16:17:17",
+  "embedders_es": [
+    "nomic-embed-text",
+    "bge-m3"
+  ],
+  "embedder_en": "nomic-embed-text",
+  "sweep": {
+    "start": 0.5,
+    "end": 1.0,
+    "step": 0.005
+  },
+  "results_by_scope": {
+    "ES-nomic-embed-text": [
+      {
+        "id": "neg-01",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9970715551850045
+      },
+      {
+        "id": "neg-02",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9984295530631517
+      },
+      {
+        "id": "neg-03",
+        "category": "negation",
+        "mechanism": "include_exclude",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9811286763326529
+      },
+      {
+        "id": "neg-06",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9975596046589338
+      },
+      {
+        "id": "neg-07",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9982363945976657
+      },
+      {
+        "id": "neg-08",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9968429702519901
+      },
+      {
+        "id": "neg-09",
+        "category": "negation",
+        "mechanism": "include_exclude",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9851434641178862
+      },
+      {
+        "id": "neg-10",
+        "category": "negation",
+        "mechanism": "permit_prohibit",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9561723701294791
+      },
+      {
+        "id": "neg-11",
+        "category": "negation",
+        "mechanism": "permit_prohibit",
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9281326724190725
+      },
+      {
+        "id": "cnf-01",
+        "category": "confirmatory",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9715023931477386
+      },
+      {
+        "id": "cnf-02",
+        "category": "confirmatory",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9702352702553423
+      },
+      {
+        "id": "tmp-01",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9645824651891596
+      },
+      {
+        "id": "tmp-02",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9053919926365384
+      },
+      {
+        "id": "tmp-03",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9530129361463274
+      },
+      {
+        "id": "tmp-04",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9140629025205141
+      },
+      {
+        "id": "tmp-05",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9491668413862779
+      },
+      {
+        "id": "ent-01",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.8706269881854384
+      },
+      {
+        "id": "ent-02",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.8965936464584326
+      },
+      {
+        "id": "ent-03",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.8827411375657844
+      },
+      {
+        "id": "ent-04",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.7497610149046652
+      },
+      {
+        "id": "ent-05",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9209880270192917
+      },
+      {
+        "id": "par-01",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.7786561822678769
+      },
+      {
+        "id": "par-02",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.8514878414750208
+      },
+      {
+        "id": "par-03",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.747004864666739
+      },
+      {
+        "id": "par-04",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9059969350808534
+      },
+      {
+        "id": "par-05",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.7501888304135819
+      },
+      {
+        "id": "parhi-01",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9372028776538835
+      },
+      {
+        "id": "parhi-02",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9745158597938859
+      },
+      {
+        "id": "parhi-03",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.8967677992512191
+      },
+      {
+        "id": "parhi-04",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9337101821690268
+      },
+      {
+        "id": "parhi-05",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9588935968268567
+      }
+    ],
+    "ES-bge-m3": [
+      {
+        "id": "neg-01",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9520384924666265
+      },
+      {
+        "id": "neg-02",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9593843660226401
+      },
+      {
+        "id": "neg-03",
+        "category": "negation",
+        "mechanism": "include_exclude",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9198415087144713
+      },
+      {
+        "id": "neg-06",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.8867848329664922
+      },
+      {
+        "id": "neg-07",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9022416210149017
+      },
+      {
+        "id": "neg-08",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9601999642548736
+      },
+      {
+        "id": "neg-09",
+        "category": "negation",
+        "mechanism": "include_exclude",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9246850652889261
+      },
+      {
+        "id": "neg-10",
+        "category": "negation",
+        "mechanism": "permit_prohibit",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9507975732103134
+      },
+      {
+        "id": "neg-11",
+        "category": "negation",
+        "mechanism": "permit_prohibit",
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9624670390867714
+      },
+      {
+        "id": "cnf-01",
+        "category": "confirmatory",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9626518195572916
+      },
+      {
+        "id": "cnf-02",
+        "category": "confirmatory",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9657052626595376
+      },
+      {
+        "id": "tmp-01",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.8129221506844077
+      },
+      {
+        "id": "tmp-02",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.7728199505617317
+      },
+      {
+        "id": "tmp-03",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.9055002682307617
+      },
+      {
+        "id": "tmp-04",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.7990582480725675
+      },
+      {
+        "id": "tmp-05",
+        "category": "temporal",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.7142712839016937
+      },
+      {
+        "id": "ent-01",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.7796878765893008
+      },
+      {
+        "id": "ent-02",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.7991358793850477
+      },
+      {
+        "id": "ent-03",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.886939756252206
+      },
+      {
+        "id": "ent-04",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.7641654925154729
+      },
+      {
+        "id": "ent-05",
+        "category": "entity",
+        "mechanism": null,
+        "language": "es",
+        "expected": "reject",
+        "model": "bge-m3",
+        "similarity": 0.8556069863018096
+      },
+      {
+        "id": "par-01",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9467729494592483
+      },
+      {
+        "id": "par-02",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9137767549365887
+      },
+      {
+        "id": "par-03",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9504394646202582
+      },
+      {
+        "id": "par-04",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9263680761463845
+      },
+      {
+        "id": "par-05",
+        "category": "paraphrase-low",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9177609783739661
+      },
+      {
+        "id": "parhi-01",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9833833839385245
+      },
+      {
+        "id": "parhi-02",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9976171686373131
+      },
+      {
+        "id": "parhi-03",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9939794944227793
+      },
+      {
+        "id": "parhi-04",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.989979745857699
+      },
+      {
+        "id": "parhi-05",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "es",
+        "expected": "accept",
+        "model": "bge-m3",
+        "similarity": 0.9538804315074259
+      }
+    ],
+    "EN-nomic-embed-text": [
+      {
+        "id": "neg-01-en",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9797216831534798
+      },
+      {
+        "id": "neg-02-en",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9648310293642034
+      },
+      {
+        "id": "neg-03-en",
+        "category": "negation",
+        "mechanism": "include_exclude",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9423071047154695
+      },
+      {
+        "id": "neg-06-en",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9402736903217306
+      },
+      {
+        "id": "neg-07-en",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9217701895270487
+      },
+      {
+        "id": "neg-08-en",
+        "category": "negation",
+        "mechanism": "with_without",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9454872878506545
+      },
+      {
+        "id": "neg-09-en",
+        "category": "negation",
+        "mechanism": "include_exclude",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.951286314844011
+      },
+      {
+        "id": "neg-10-en",
+        "category": "negation",
+        "mechanism": "permit_prohibit",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9806574997699591
+      },
+      {
+        "id": "neg-11-en",
+        "category": "negation",
+        "mechanism": "permit_prohibit",
+        "language": "en",
+        "expected": "reject",
+        "model": "nomic-embed-text",
+        "similarity": 0.9414690948027303
+      },
+      {
+        "id": "cnf-01-en",
+        "category": "confirmatory",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9920138113159638
+      },
+      {
+        "id": "cnf-02-en",
+        "category": "confirmatory",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9690526617341837
+      },
+      {
+        "id": "parhi-01-en",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9832067411769112
+      },
+      {
+        "id": "parhi-02-en",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9963606170397179
+      },
+      {
+        "id": "parhi-03-en",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9413712768914655
+      },
+      {
+        "id": "parhi-04-en",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9165460244456411
+      },
+      {
+        "id": "parhi-05-en",
+        "category": "paraphrase-high",
+        "mechanism": null,
+        "language": "en",
+        "expected": "accept",
+        "model": "nomic-embed-text",
+        "similarity": 0.9099357973189603
+      }
+    ]
+  }
+}

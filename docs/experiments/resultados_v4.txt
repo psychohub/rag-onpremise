@@ -1,0 +1,406 @@
+==========================================================================
+Threshold separability experiment v4
+==========================================================================
+Ollama URL:        http://localhost:11434
+Embedders (ES):    nomic-embed-text, bge-m3
+Embedder (EN):     nomic-embed-text
+Pairs ES / EN:     31 / 16
+Total embeddings:  156
+Sweep range:       0.5 to 1.0 step 0.005
+
+==========================================================================
+Running: Spanish via nomic-embed-text  |  Model: nomic-embed-text  |  Pairs: 31
+==========================================================================
+[ 1/31] neg-01         (negation        ) sim = 0.9971
+[ 2/31] neg-02         (negation        ) sim = 0.9984
+[ 3/31] neg-03         (negation        ) sim = 0.9811
+[ 4/31] neg-06         (negation        ) sim = 0.9976
+[ 5/31] neg-07         (negation        ) sim = 0.9982
+[ 6/31] neg-08         (negation        ) sim = 0.9968
+[ 7/31] neg-09         (negation        ) sim = 0.9851
+[ 8/31] neg-10         (negation        ) sim = 0.9562
+[ 9/31] neg-11         (negation        ) sim = 0.9281
+[10/31] cnf-01         (confirmatory    ) sim = 0.9715
+[11/31] cnf-02         (confirmatory    ) sim = 0.9702
+[12/31] tmp-01         (temporal        ) sim = 0.9646
+[13/31] tmp-02         (temporal        ) sim = 0.9054
+[14/31] tmp-03         (temporal        ) sim = 0.9530
+[15/31] tmp-04         (temporal        ) sim = 0.9141
+[16/31] tmp-05         (temporal        ) sim = 0.9492
+[17/31] ent-01         (entity          ) sim = 0.8706
+[18/31] ent-02         (entity          ) sim = 0.8966
+[19/31] ent-03         (entity          ) sim = 0.8827
+[20/31] ent-04         (entity          ) sim = 0.7498
+[21/31] ent-05         (entity          ) sim = 0.9210
+[22/31] par-01         (paraphrase-low  ) sim = 0.7787
+[23/31] par-02         (paraphrase-low  ) sim = 0.8515
+[24/31] par-03         (paraphrase-low  ) sim = 0.7470
+[25/31] par-04         (paraphrase-low  ) sim = 0.9060
+[26/31] par-05         (paraphrase-low  ) sim = 0.7502
+[27/31] parhi-01       (paraphrase-high ) sim = 0.9372
+[28/31] parhi-02       (paraphrase-high ) sim = 0.9745
+[29/31] parhi-03       (paraphrase-high ) sim = 0.8968
+[30/31] parhi-04       (paraphrase-high ) sim = 0.9337
+[31/31] parhi-05       (paraphrase-high ) sim = 0.9589
+
+Done in 77.3s (2.49s per pair).
+
+==========================================================================
+Running: Spanish via bge-m3  |  Model: bge-m3  |  Pairs: 31
+==========================================================================
+[ 1/31] neg-01         (negation        ) sim = 0.9520
+[ 2/31] neg-02         (negation        ) sim = 0.9594
+[ 3/31] neg-03         (negation        ) sim = 0.9198
+[ 4/31] neg-06         (negation        ) sim = 0.8868
+[ 5/31] neg-07         (negation        ) sim = 0.9022
+[ 6/31] neg-08         (negation        ) sim = 0.9602
+[ 7/31] neg-09         (negation        ) sim = 0.9247
+[ 8/31] neg-10         (negation        ) sim = 0.9508
+[ 9/31] neg-11         (negation        ) sim = 0.9625
+[10/31] cnf-01         (confirmatory    ) sim = 0.9627
+[11/31] cnf-02         (confirmatory    ) sim = 0.9657
+[12/31] tmp-01         (temporal        ) sim = 0.8129
+[13/31] tmp-02         (temporal        ) sim = 0.7728
+[14/31] tmp-03         (temporal        ) sim = 0.9055
+[15/31] tmp-04         (temporal        ) sim = 0.7991
+[16/31] tmp-05         (temporal        ) sim = 0.7143
+[17/31] ent-01         (entity          ) sim = 0.7797
+[18/31] ent-02         (entity          ) sim = 0.7991
+[19/31] ent-03         (entity          ) sim = 0.8869
+[20/31] ent-04         (entity          ) sim = 0.7642
+[21/31] ent-05         (entity          ) sim = 0.8556
+[22/31] par-01         (paraphrase-low  ) sim = 0.9468
+[23/31] par-02         (paraphrase-low  ) sim = 0.9138
+[24/31] par-03         (paraphrase-low  ) sim = 0.9504
+[25/31] par-04         (paraphrase-low  ) sim = 0.9264
+[26/31] par-05         (paraphrase-low  ) sim = 0.9178
+[27/31] parhi-01       (paraphrase-high ) sim = 0.9834
+[28/31] parhi-02       (paraphrase-high ) sim = 0.9976
+[29/31] parhi-03       (paraphrase-high ) sim = 0.9940
+[30/31] parhi-04       (paraphrase-high ) sim = 0.9900
+[31/31] parhi-05       (paraphrase-high ) sim = 0.9539
+
+Done in 89.6s (2.89s per pair).
+
+==========================================================================
+Running: English via nomic-embed-text  |  Model: nomic-embed-text  |  Pairs: 16
+==========================================================================
+[ 1/16] neg-01-en      (negation        ) sim = 0.9797
+[ 2/16] neg-02-en      (negation        ) sim = 0.9648
+[ 3/16] neg-03-en      (negation        ) sim = 0.9423
+[ 4/16] neg-06-en      (negation        ) sim = 0.9403
+[ 5/16] neg-07-en      (negation        ) sim = 0.9218
+[ 6/16] neg-08-en      (negation        ) sim = 0.9455
+[ 7/16] neg-09-en      (negation        ) sim = 0.9513
+[ 8/16] neg-10-en      (negation        ) sim = 0.9807
+[ 9/16] neg-11-en      (negation        ) sim = 0.9415
+[10/16] cnf-01-en      (confirmatory    ) sim = 0.9920
+[11/16] cnf-02-en      (confirmatory    ) sim = 0.9691
+[12/16] parhi-01-en    (paraphrase-high ) sim = 0.9832
+[13/16] parhi-02-en    (paraphrase-high ) sim = 0.9964
+[14/16] parhi-03-en    (paraphrase-high ) sim = 0.9414
+[15/16] parhi-04-en    (paraphrase-high ) sim = 0.9165
+[16/16] parhi-05-en    (paraphrase-high ) sim = 0.9099
+
+Done in 36.8s (2.30s per pair).
+
+==========================================================================
+SCOPE REPORT: ES-nomic-embed-text
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION -- ES-nomic-embed-text
+--------------------------------------------------------------------------
+category          exp       n      min      max     mean   median
+negation          reject    9   0.9281   0.9984   0.9821   0.9968
+temporal          reject    5   0.9054   0.9646   0.9372   0.9492
+entity            reject    5   0.7498   0.9210   0.8641   0.8827
+confirmatory      accept    2   0.9702   0.9715   0.9709   0.9709
+paraphrase-low    accept    5   0.7470   0.9060   0.8067   0.7787
+paraphrase-high   accept    5   0.8968   0.9745   0.9402   0.9372
+
+--------------------------------------------------------------------------
+NEGATION BY MECHANISM -- ES-nomic-embed-text
+--------------------------------------------------------------------------
+  CAVEAT: mechanisms differ in lexical overlap as well as in
+  polarity. with_without changes a function word; permit_prohibit
+  changes a content word. Lower similarity in the latter may be
+  lexical, not semantic. Do not report as a finding.
+
+mechanism              n      min      max     mean
+with_without           5   0.9968   0.9984   0.9976
+include_exclude        2   0.9811   0.9851   0.9831
+permit_prohibit        2   0.9281   0.9562   0.9422
+
+--------------------------------------------------------------------------
+THRESHOLD SWEEP -- ES-nomic-embed-text  [ALL adverse categories]
+--------------------------------------------------------------------------
+  n accept (should hit) = 12   n reject (should not hit) = 19
+  AUC = 0.3289   <-- INVERTED: adverse pairs score higher than paraphrases
+
+  Best achievable accuracy: 0.613 at threshold 1.000
+    true hits 0/12   false hits 0/19
+
+  Lowest threshold with ZERO false hits: 1.000
+    legitimate hits surviving there: 0/12
+    -> the cache never helps at any safe threshold.
+
+     thr   true  missed  FALSE    acc
+   0.700     12       0     19  0.387
+   0.720     12       0     19  0.387
+   0.740     12       0     19  0.387
+   0.760     10       2     18  0.355
+   0.780      9       3     18  0.323
+   0.800      9       3     18  0.323
+   0.820      9       3     18  0.323
+   0.840      9       3     18  0.323
+   0.860      8       4     18  0.290
+   0.880      8       4     17  0.323
+   0.900      7       5     15  0.355
+   0.920      6       6     13  0.387
+   0.940      4       8     11  0.387
+   0.960      3       9      8  0.452
+   0.980      0      12      7  0.387
+   1.000      0      12      0  0.613  <<
+
+--------------------------------------------------------------------------
+THRESHOLD SWEEP -- ES-nomic-embed-text  [EXCLUDING negation]
+--------------------------------------------------------------------------
+  n accept (should hit) = 12   n reject (should not hit) = 10
+  AUC = 0.5417   <-- essentially no separability
+
+  Best achievable accuracy: 0.591 at threshold 0.925
+    true hits 6/12   false hits 3/10
+
+  Lowest threshold with ZERO false hits: 0.965
+    legitimate hits surviving there: 3/12
+
+     thr   true  missed  FALSE    acc
+   0.700     12       0     10  0.545
+   0.720     12       0     10  0.545
+   0.740     12       0     10  0.545
+   0.760     10       2      9  0.500
+   0.780      9       3      9  0.455
+   0.800      9       3      9  0.455
+   0.820      9       3      9  0.455
+   0.840      9       3      9  0.455
+   0.860      8       4      9  0.409
+   0.880      8       4      8  0.455
+   0.900      7       5      6  0.500
+   0.920      6       6      4  0.545
+   0.940      4       8      3  0.500
+   0.960      3       9      1  0.545
+   0.980      0      12      0  0.455
+   1.000      0      12      0  0.455
+
+--------------------------------------------------------------------------
+DIAGNOSTIC ONLY -- behaviour at legacy threshold 0.92
+--------------------------------------------------------------------------
+  Operational reference for the shipped default. NOT a result:
+  per-category counts at a single threshold are unstable at this
+  sample size. Cite the sweep and AUC above instead.
+
+category          exp       n  hits
+negation          reject    9     9
+temporal          reject    5     3
+entity            reject    5     1
+confirmatory      accept    2     2
+paraphrase-low    accept    5     0
+paraphrase-high   accept    5     4
+
+==========================================================================
+SCOPE REPORT: ES-bge-m3
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION -- ES-bge-m3
+--------------------------------------------------------------------------
+category          exp       n      min      max     mean   median
+negation          reject    9   0.8868   0.9625   0.9354   0.9508
+temporal          reject    5   0.7143   0.9055   0.8009   0.7991
+entity            reject    5   0.7642   0.8869   0.8171   0.7991
+confirmatory      accept    2   0.9627   0.9657   0.9642   0.9642
+paraphrase-low    accept    5   0.9138   0.9504   0.9310   0.9264
+paraphrase-high   accept    5   0.9539   0.9976   0.9838   0.9900
+
+--------------------------------------------------------------------------
+NEGATION BY MECHANISM -- ES-bge-m3
+--------------------------------------------------------------------------
+  CAVEAT: mechanisms differ in lexical overlap as well as in
+  polarity. with_without changes a function word; permit_prohibit
+  changes a content word. Lower similarity in the latter may be
+  lexical, not semantic. Do not report as a finding.
+
+mechanism              n      min      max     mean
+with_without           5   0.8868   0.9602   0.9321
+include_exclude        2   0.9198   0.9247   0.9223
+permit_prohibit        2   0.9508   0.9625   0.9566
+
+--------------------------------------------------------------------------
+THRESHOLD SWEEP -- ES-bge-m3  [ALL adverse categories]
+--------------------------------------------------------------------------
+  n accept (should hit) = 12   n reject (should not hit) = 19
+  AUC = 0.8596
+
+  Best achievable accuracy: 0.774 at threshold 0.910
+    true hits 12/12   false hits 7/19
+
+  Lowest threshold with ZERO false hits: 0.965
+    legitimate hits surviving there: 5/12
+
+     thr   true  missed  FALSE    acc
+   0.700     12       0     19  0.387
+   0.720     12       0     18  0.419
+   0.740     12       0     18  0.419
+   0.760     12       0     18  0.419
+   0.780     12       0     15  0.516
+   0.800     12       0     13  0.581
+   0.820     12       0     12  0.613
+   0.840     12       0     12  0.613
+   0.860     12       0     11  0.645
+   0.880     12       0     11  0.645
+   0.900     12       0      9  0.710
+   0.920     10       2      6  0.742
+   0.940      9       3      5  0.742
+   0.960      6       6      2  0.742
+   0.980      4       8      0  0.742
+   1.000      0      12      0  0.613
+
+--------------------------------------------------------------------------
+THRESHOLD SWEEP -- ES-bge-m3  [EXCLUDING negation]
+--------------------------------------------------------------------------
+  n accept (should hit) = 12   n reject (should not hit) = 10
+  AUC = 1.0000
+
+  Best achievable accuracy: 1.000 at threshold 0.910
+    true hits 12/12   false hits 0/10
+
+  Lowest threshold with ZERO false hits: 0.910
+    legitimate hits surviving there: 12/12
+
+     thr   true  missed  FALSE    acc
+   0.700     12       0     10  0.545
+   0.720     12       0      9  0.591
+   0.740     12       0      9  0.591
+   0.760     12       0      9  0.591
+   0.780     12       0      6  0.727
+   0.800     12       0      4  0.818
+   0.820     12       0      3  0.864
+   0.840     12       0      3  0.864
+   0.860     12       0      2  0.909
+   0.880     12       0      2  0.909
+   0.900     12       0      1  0.955
+   0.920     10       2      0  0.909
+   0.940      9       3      0  0.864
+   0.960      6       6      0  0.727
+   0.980      4       8      0  0.636
+   1.000      0      12      0  0.455
+
+--------------------------------------------------------------------------
+DIAGNOSTIC ONLY -- behaviour at legacy threshold 0.92
+--------------------------------------------------------------------------
+  Operational reference for the shipped default. NOT a result:
+  per-category counts at a single threshold are unstable at this
+  sample size. Cite the sweep and AUC above instead.
+
+category          exp       n  hits
+negation          reject    9     6
+temporal          reject    5     0
+entity            reject    5     0
+confirmatory      accept    2     2
+paraphrase-low    accept    5     3
+paraphrase-high   accept    5     5
+
+==========================================================================
+SCOPE REPORT: EN-nomic-embed-text
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION -- EN-nomic-embed-text
+--------------------------------------------------------------------------
+category          exp       n      min      max     mean   median
+negation          reject    9   0.9218   0.9807   0.9520   0.9455
+confirmatory      accept    2   0.9691   0.9920   0.9805   0.9805
+paraphrase-high   accept    5   0.9099   0.9964   0.9495   0.9414
+
+--------------------------------------------------------------------------
+NEGATION BY MECHANISM -- EN-nomic-embed-text
+--------------------------------------------------------------------------
+  CAVEAT: mechanisms differ in lexical overlap as well as in
+  polarity. with_without changes a function word; permit_prohibit
+  changes a content word. Lower similarity in the latter may be
+  lexical, not semantic. Do not report as a finding.
+
+mechanism              n      min      max     mean
+with_without           5   0.9218   0.9797   0.9504
+include_exclude        2   0.9423   0.9513   0.9468
+permit_prohibit        2   0.9415   0.9807   0.9611
+
+--------------------------------------------------------------------------
+THRESHOLD SWEEP -- EN-nomic-embed-text  [ALL adverse categories]
+--------------------------------------------------------------------------
+  n accept (should hit) = 7   n reject (should not hit) = 9
+  AUC = 0.5714   <-- essentially no separability
+
+  Best achievable accuracy: 0.688 at threshold 0.965
+    true hits 4/7   false hits 2/9
+
+  Lowest threshold with ZERO false hits: 0.985
+    legitimate hits surviving there: 2/7
+
+     thr   true  missed  FALSE    acc
+   0.700      7       0      9  0.438
+   0.720      7       0      9  0.438
+   0.740      7       0      9  0.438
+   0.760      7       0      9  0.438
+   0.780      7       0      9  0.438
+   0.800      7       0      9  0.438
+   0.820      7       0      9  0.438
+   0.840      7       0      9  0.438
+   0.860      7       0      9  0.438
+   0.880      7       0      9  0.438
+   0.900      7       0      9  0.438
+   0.920      5       2      9  0.312
+   0.940      5       2      8  0.375
+   0.960      4       3      3  0.625
+   0.980      3       4      1  0.688
+   1.000      0       7      0  0.562
+
+--------------------------------------------------------------------------
+THRESHOLD SWEEP -- EN-nomic-embed-text  [EXCLUDING negation]
+--------------------------------------------------------------------------
+  (this scope lacks both accept and reject pairs)
+
+--------------------------------------------------------------------------
+DIAGNOSTIC ONLY -- behaviour at legacy threshold 0.92
+--------------------------------------------------------------------------
+  Operational reference for the shipped default. NOT a result:
+  per-category counts at a single threshold are unstable at this
+  sample size. Cite the sweep and AUC above instead.
+
+category          exp       n  hits
+negation          reject    9     9
+confirmatory      accept    2     2
+paraphrase-high   accept    5     3
+
+==========================================================================
+Raw similarities written to resultados_v4.json
+Re-analysis does not require recomputing embeddings.
+==========================================================================
+
+==========================================================================
+EXECUTIVE SUMMARY -- separability, threshold-free
+==========================================================================
+
+  scope                        AUC all  AUC no-neg  best acc
+  ES-nomic-embed-text           0.3289      0.5417     0.613
+  ES-bge-m3                     0.8596      1.0000     0.774
+  EN-nomic-embed-text           0.5714         n/a     0.688
+
+  Reading guide:
+    AUC 0.50 = the score carries no information about which pairs
+    should be cached. Below 0.50 = the score is actively
+    misleading: adverse pairs rank above genuine paraphrases.
+    Compare AUC all vs AUC no-neg to see how much of the failure
+    is polarity alone.
+    n/a = the scope lacks pairs on one side of the comparison.

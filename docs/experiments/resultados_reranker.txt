@@ -1,0 +1,170 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+==========================================================================
+Cross-encoder reranker scoring -- v4-schema compatible
+==========================================================================
+Model:        cross-encoder/ms-marco-MiniLM-L-6-v2
+Pairs ES/EN:  31 / 16
+Output:       resultados_reranker.json
+
+NOTE: 'similarity' holds the mean of both directions. It is an
+      unbounded logit, not a cosine. Margins derived from it are
+      in logit units and are NOT comparable to resultados_v4.json.
+      AUC and permutation p-values ARE comparable.
+
+Loading model (first run downloads from HuggingFace)...
+Loading weights:   0%|          | 0/105 [00:00<?, ?it/s]Loading weights: 100%|##########| 105/105 [00:00<00:00, 13126.73it/s]
+Loaded in 4.32s.
+
+==========================================================================
+Running: Spanish via ms-marco-MiniLM  |  Model: cross-encoder/ms-marco-MiniLM-L-6-v2  |  Pairs: 31
+==========================================================================
+   #  pair           category                qt        tq      mean   |qt-tq|       ms
+   1  neg-01         negation            8.4352    8.3660    8.4006    0.0692     54.7
+   2  neg-02         negation            8.5065    8.4242    8.4653    0.0823     32.9
+   3  neg-03         negation            7.7071    7.0512    7.3791    0.6558     37.2
+   4  neg-06         negation            8.4580    8.1567    8.3073    0.3013     35.0
+   5  neg-07         negation            8.6517    8.6724    8.6620    0.0207     30.5
+   6  neg-08         negation            8.8006    8.7471    8.7739    0.0535     36.2
+   7  neg-09         negation            8.2079    7.4897    7.8488    0.7182    227.4
+   8  neg-10         negation            7.6673    7.4643    7.5658    0.2029     44.1
+   9  neg-11         negation            7.8459    7.4446    7.6453    0.4013     39.1
+  10  cnf-01         confirmatory        8.3329    7.0230    7.6779    1.3099     33.9
+  11  cnf-02         confirmatory        8.2863    7.5308    7.9085    0.7555     37.1
+  12  tmp-01         temporal            8.8875    9.0193    8.9534    0.1319     39.0
+  13  tmp-02         temporal            7.6913    7.4597    7.5755    0.2316     35.3
+  14  tmp-03         temporal            8.2675    8.3013    8.2844    0.0338     37.3
+  15  tmp-04         temporal            7.0973    7.9498    7.5236    0.8525     36.6
+  16  tmp-05         temporal            8.6083    8.6330    8.6207    0.0246     33.8
+  17  ent-01         entity              7.4861    7.9946    7.7404    0.5086     33.3
+  18  ent-02         entity              6.5216    6.4390    6.4803    0.0827     35.3
+  19  ent-03         entity              6.8368    6.6519    6.7443    0.1849     31.0
+  20  ent-04         entity              6.9450    5.7681    6.3566    1.1769     36.5
+  21  ent-05         entity              7.7156    8.2165    7.9661    0.5009     35.8
+  22  par-01         paraphrase-low      1.8298   -2.2443   -0.2072    4.0741     28.9
+  23  par-02         paraphrase-low      6.5630    2.3430    4.4530    4.2200     31.6
+  24  par-03         paraphrase-low      3.1684    0.5255    1.8469    2.6429     28.8
+  25  par-04         paraphrase-low      5.1661    5.0156    5.0909    0.1505     28.3
+  26  par-05         paraphrase-low     -0.5319   -3.6170   -2.0745    3.0851     39.0
+  27  parhi-01       paraphrase-high     7.2570    7.9407    7.5989    0.6837     32.2
+  28  parhi-02       paraphrase-high     8.1005    8.2652    8.1829    0.1647     29.0
+  29  parhi-03       paraphrase-high     7.3637    7.6583    7.5110    0.2946     29.7
+  30  parhi-04       paraphrase-high     7.3318    7.5225    7.4272    0.1906     32.0
+  31  parhi-05       paraphrase-high     8.1177    8.8524    8.4851    0.7347     34.3
+
+Scope done in 1.3s.
+
+==========================================================================
+Running: English via ms-marco-MiniLM  |  Model: cross-encoder/ms-marco-MiniLM-L-6-v2  |  Pairs: 16
+==========================================================================
+   #  pair           category                qt        tq      mean   |qt-tq|       ms
+   1  neg-01-en      negation            9.1056    8.8336    8.9696    0.2721     26.1
+   2  neg-02-en      negation            5.8248    4.8379    5.3313    0.9869     20.7
+   3  neg-03-en      negation            8.9733    8.2689    8.6211    0.7045     26.1
+   4  neg-06-en      negation            5.3847    5.0953    5.2400    0.2894     24.8
+   5  neg-07-en      negation            6.8338    6.4354    6.6346    0.3983     23.3
+   6  neg-08-en      negation            8.8092    8.2339    8.5216    0.5753     24.0
+   7  neg-09-en      negation            9.3113    8.6540    8.9826    0.6573     27.5
+   8  neg-10-en      negation            9.5016    9.0965    9.2990    0.4051     27.7
+   9  neg-11-en      negation            7.9104    7.2795    7.5949    0.6309     26.0
+  10  cnf-01-en      confirmatory        9.6673    8.8707    9.2690    0.7966     27.2
+  11  cnf-02-en      confirmatory        9.7675    8.9418    9.3547    0.8256     26.7
+  12  parhi-01-en    paraphrase-high     5.1400    5.5002    5.3201    0.3601     26.1
+  13  parhi-02-en    paraphrase-high     5.8216    5.6922    5.7569    0.1294     33.7
+  14  parhi-03-en    paraphrase-high     2.3284    3.7211    3.0248    1.3927     28.7
+  15  parhi-04-en    paraphrase-high     3.8311    3.4253    3.6282    0.4058     36.3
+  16  parhi-05-en    paraphrase-high     4.6597    5.7077    5.1837    1.0480     29.1
+
+Scope done in 0.4s.
+
+==========================================================================
+Raw scores written to resultados_reranker.json
+Schema matches resultados_v4.json. Run without modification:
+    python analyze_contrasts.py resultados_reranker.json
+    python significance.py resultados_reranker.json
+==========================================================================
+
+==========================================================================
+SCOPE REPORT: ES-ms-marco-MiniLM
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION (mean of both directions) -- ES-ms-marco-MiniLM
+--------------------------------------------------------------------------
+  Values are unbounded cross-encoder logits, NOT cosines.
+
+category          exp       n       min       max      mean    median
+negation          reject    9    7.3791    8.7739    8.1165    8.3073
+temporal          reject    5    7.5236    8.9534    8.1915    8.2844
+entity            reject    5    6.3566    7.9661    7.0575    6.7443
+confirmatory      accept    2    7.6779    7.9085    7.7932    7.7932
+paraphrase-low    accept    5   -2.0745    5.0909    1.8218    1.8469
+paraphrase-high   accept    5    7.4272    8.4851    7.8410    7.5989
+
+--------------------------------------------------------------------------
+DIRECTIONAL ASYMMETRY |score_qt - score_tq| -- ES-ms-marco-MiniLM
+--------------------------------------------------------------------------
+category            n       min       max      mean    median
+negation            9    0.0207    0.7182    0.2784    0.2029
+temporal            5    0.0246    0.8525    0.2549    0.1319
+entity              5    0.0827    1.1769    0.4908    0.5009
+confirmatory        2    0.7555    1.3099    1.0327    1.0327
+paraphrase-low      5    0.1505    4.2200    2.8345    3.0851
+paraphrase-high     5    0.1647    0.7347    0.4137    0.2946
+
+  Mean asymmetry over all pairs: 0.7916
+  Max  asymmetry over all pairs: 4.2200
+  Spread between category means: 6.3697
+  Asymmetry / spread ratio:      0.124
+    -> Direction noise is small relative to the signal.
+
+==========================================================================
+SCOPE REPORT: EN-ms-marco-MiniLM
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION (mean of both directions) -- EN-ms-marco-MiniLM
+--------------------------------------------------------------------------
+  Values are unbounded cross-encoder logits, NOT cosines.
+
+category          exp       n       min       max      mean    median
+negation          reject    9    5.2400    9.2990    7.6883    8.5216
+confirmatory      accept    2    9.2690    9.3547    9.3118    9.3118
+paraphrase-high   accept    5    3.0248    5.7569    4.5828    5.1837
+
+--------------------------------------------------------------------------
+DIRECTIONAL ASYMMETRY |score_qt - score_tq| -- EN-ms-marco-MiniLM
+--------------------------------------------------------------------------
+category            n       min       max      mean    median
+negation            9    0.2721    0.9869    0.5467    0.5753
+confirmatory        2    0.7966    0.8256    0.8111    0.8111
+paraphrase-high     5    0.1294    1.3927    0.6672    0.4058
+
+  Mean asymmetry over all pairs: 0.6174
+  Max  asymmetry over all pairs: 1.3927
+  Spread between category means: 4.7291
+  Asymmetry / spread ratio:      0.131
+    -> Direction noise is small relative to the signal.
+
+==========================================================================
+LATENCY
+==========================================================================
+  Per-pair latency covers BOTH directions, since a symmetric
+  score requires both forward passes.
+
+  Model load (once, warm cache): 4.32s
+
+  scope                     n    mean ms   median ms    min ms    max ms
+  ES-ms-marco-MiniLM       31       41.2        35.0      28.3     227.4
+  EN-ms-marco-MiniLM       16       27.1        26.4      20.7      36.3
+
+  Overall mean per pair: 36.4 ms
+  Overall median:        32.2 ms
+
+  Measured on this machine, CPU only, one pair at a time.
+  Batching would lower per-pair cost and is NOT measured here.
+
+==========================================================================
+NO threshold sweep and NO separation analysis are done here.
+Both live in analyze_contrasts.py and significance.py, which
+read the JSON above. This script only produces scores.
+==========================================================================

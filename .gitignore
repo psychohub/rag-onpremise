@@ -1,2 +1,6 @@
 # Contexto operativo local del maintainer — no commitear
 CLAUDE.md
+
+# Bytecode de Python (los scripts de docs/experiments/ se importan entre sí)
+__pycache__/
+*.py[cod]

@@ -1,0 +1,332 @@
+==========================================================================
+Threshold safety experiment v3 -- cross-embedder + cross-language
+==========================================================================
+Ollama URL:        http://localhost:11434
+Current threshold: 0.92
+Embedders (ES):    nomic-embed-text, bge-m3
+Embedder (EN):     nomic-embed-text
+Pairs ES:          31
+Pairs EN:          16
+Total embeddings:  156
+
+==========================================================================
+Running: Spanish via nomic-embed-text  |  Model: nomic-embed-text  |  Pairs: 31
+==========================================================================
+[ 1/31] neg-01         (negation        ) sim = 0.9971  BAD
+[ 2/31] neg-02         (negation        ) sim = 0.9984  BAD
+[ 3/31] neg-03         (negation        ) sim = 0.9811  BAD
+[ 4/31] neg-06         (negation        ) sim = 0.9976  BAD
+[ 5/31] neg-07         (negation        ) sim = 0.9982  BAD
+[ 6/31] neg-08         (negation        ) sim = 0.9968  BAD
+[ 7/31] neg-09         (negation        ) sim = 0.9851  BAD
+[ 8/31] neg-10         (negation        ) sim = 0.9562  BAD
+[ 9/31] neg-11         (negation        ) sim = 0.9281  BAD
+[10/31] cnf-01         (confirmatory    ) sim = 0.9715  ok 
+[11/31] cnf-02         (confirmatory    ) sim = 0.9702  ok 
+[12/31] tmp-01         (temporal        ) sim = 0.9646  BAD
+[13/31] tmp-02         (temporal        ) sim = 0.9054  ok 
+[14/31] tmp-03         (temporal        ) sim = 0.9530  BAD
+[15/31] tmp-04         (temporal        ) sim = 0.9141  ok 
+[16/31] tmp-05         (temporal        ) sim = 0.9492  BAD
+[17/31] ent-01         (entity          ) sim = 0.8706  ok 
+[18/31] ent-02         (entity          ) sim = 0.8966  ok 
+[19/31] ent-03         (entity          ) sim = 0.8827  ok 
+[20/31] ent-04         (entity          ) sim = 0.7498  ok 
+[21/31] ent-05         (entity          ) sim = 0.9210  BAD
+[22/31] par-01         (paraphrase-low  ) sim = 0.7787  BAD
+[23/31] par-02         (paraphrase-low  ) sim = 0.8515  BAD
+[24/31] par-03         (paraphrase-low  ) sim = 0.7470  BAD
+[25/31] par-04         (paraphrase-low  ) sim = 0.9060  BAD
+[26/31] par-05         (paraphrase-low  ) sim = 0.7502  BAD
+[27/31] parhi-01       (paraphrase-high ) sim = 0.9372  ok 
+[28/31] parhi-02       (paraphrase-high ) sim = 0.9745  ok 
+[29/31] parhi-03       (paraphrase-high ) sim = 0.8968  BAD
+[30/31] parhi-04       (paraphrase-high ) sim = 0.9337  ok 
+[31/31] parhi-05       (paraphrase-high ) sim = 0.9589  ok 
+
+Done in 74.6s (2.41s per pair).
+
+==========================================================================
+Running: Spanish via bge-m3  |  Model: bge-m3  |  Pairs: 31
+==========================================================================
+[ 1/31] neg-01         (negation        ) sim = 0.9520  BAD
+[ 2/31] neg-02         (negation        ) sim = 0.9594  BAD
+[ 3/31] neg-03         (negation        ) sim = 0.9198  ok 
+[ 4/31] neg-06         (negation        ) sim = 0.8868  ok 
+[ 5/31] neg-07         (negation        ) sim = 0.9022  ok 
+[ 6/31] neg-08         (negation        ) sim = 0.9602  BAD
+[ 7/31] neg-09         (negation        ) sim = 0.9247  BAD
+[ 8/31] neg-10         (negation        ) sim = 0.9508  BAD
+[ 9/31] neg-11         (negation        ) sim = 0.9625  BAD
+[10/31] cnf-01         (confirmatory    ) sim = 0.9627  ok 
+[11/31] cnf-02         (confirmatory    ) sim = 0.9657  ok 
+[12/31] tmp-01         (temporal        ) sim = 0.8129  ok 
+[13/31] tmp-02         (temporal        ) sim = 0.7728  ok 
+[14/31] tmp-03         (temporal        ) sim = 0.9055  ok 
+[15/31] tmp-04         (temporal        ) sim = 0.7991  ok 
+[16/31] tmp-05         (temporal        ) sim = 0.7143  ok 
+[17/31] ent-01         (entity          ) sim = 0.7797  ok 
+[18/31] ent-02         (entity          ) sim = 0.7991  ok 
+[19/31] ent-03         (entity          ) sim = 0.8869  ok 
+[20/31] ent-04         (entity          ) sim = 0.7642  ok 
+[21/31] ent-05         (entity          ) sim = 0.8556  ok 
+[22/31] par-01         (paraphrase-low  ) sim = 0.9468  ok 
+[23/31] par-02         (paraphrase-low  ) sim = 0.9138  BAD
+[24/31] par-03         (paraphrase-low  ) sim = 0.9504  ok 
+[25/31] par-04         (paraphrase-low  ) sim = 0.9264  ok 
+[26/31] par-05         (paraphrase-low  ) sim = 0.9178  BAD
+[27/31] parhi-01       (paraphrase-high ) sim = 0.9834  ok 
+[28/31] parhi-02       (paraphrase-high ) sim = 0.9976  ok 
+[29/31] parhi-03       (paraphrase-high ) sim = 0.9940  ok 
+[30/31] parhi-04       (paraphrase-high ) sim = 0.9900  ok 
+[31/31] parhi-05       (paraphrase-high ) sim = 0.9539  ok 
+
+Done in 94.9s (3.06s per pair).
+
+==========================================================================
+Running: English via nomic-embed-text  |  Model: nomic-embed-text  |  Pairs: 16
+==========================================================================
+[ 1/16] neg-01-en      (negation        ) sim = 0.9797  BAD
+[ 2/16] neg-02-en      (negation        ) sim = 0.9648  BAD
+[ 3/16] neg-03-en      (negation        ) sim = 0.9423  BAD
+[ 4/16] neg-06-en      (negation        ) sim = 0.9403  BAD
+[ 5/16] neg-07-en      (negation        ) sim = 0.9218  BAD
+[ 6/16] neg-08-en      (negation        ) sim = 0.9455  BAD
+[ 7/16] neg-09-en      (negation        ) sim = 0.9513  BAD
+[ 8/16] neg-10-en      (negation        ) sim = 0.9807  BAD
+[ 9/16] neg-11-en      (negation        ) sim = 0.9415  BAD
+[10/16] cnf-01-en      (confirmatory    ) sim = 0.9920  ok 
+[11/16] cnf-02-en      (confirmatory    ) sim = 0.9691  ok 
+[12/16] parhi-01-en    (paraphrase-high ) sim = 0.9832  ok 
+[13/16] parhi-02-en    (paraphrase-high ) sim = 0.9964  ok 
+[14/16] parhi-03-en    (paraphrase-high ) sim = 0.9414  ok 
+[15/16] parhi-04-en    (paraphrase-high ) sim = 0.9165  BAD
+[16/16] parhi-05-en    (paraphrase-high ) sim = 0.9099  BAD
+
+Done in 39.1s (2.44s per pair).
+
+==========================================================================
+SCOPE REPORT: ES-nomic-embed-text
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION -- ES-nomic-embed-text
+--------------------------------------------------------------------------
+category          exp       n      min      max     mean   median
+negation          reject    9   0.9281   0.9984   0.9821   0.9968
+temporal          reject    5   0.9054   0.9646   0.9372   0.9492
+entity            reject    5   0.7498   0.9210   0.8641   0.8827
+confirmatory      accept    2   0.9702   0.9715   0.9709   0.9709
+paraphrase-low    accept    5   0.7470   0.9060   0.8067   0.7787
+paraphrase-high   accept    5   0.8968   0.9745   0.9402   0.9372
+
+--------------------------------------------------------------------------
+NEGATION BY MECHANISM -- ES-nomic-embed-text
+--------------------------------------------------------------------------
+mechanism              n      min      max     mean
+with_without           5   0.9968   0.9984   0.9976
+include_exclude        2   0.9811   0.9851   0.9831
+permit_prohibit        2   0.9281   0.9562   0.9422
+
+--------------------------------------------------------------------------
+SAFE THRESHOLD ANALYSIS -- ES-nomic-embed-text
+--------------------------------------------------------------------------
+
+  Scenario: ALL adverse categories
+    Highest adverse similarity (should NOT hit): 0.9984
+    Lowest accept similarity   (SHOULD hit):     0.7470
+    NO SAFE THRESHOLD EXISTS  (gap: -0.2514)
+
+  Scenario: EXCLUDING negation
+    Highest adverse similarity (should NOT hit): 0.9646
+    Lowest accept similarity   (SHOULD hit):     0.7470
+    NO SAFE THRESHOLD EXISTS  (gap: -0.2176)
+
+--------------------------------------------------------------------------
+DECISION MATRIX AT CURRENT THRESHOLD (0.92) -- ES-nomic-embed-text
+--------------------------------------------------------------------------
+category          exp       n  hits  correct  wrong
+negation          reject    9     9        0      9
+temporal          reject    5     3        2      3
+entity            reject    5     1        4      1
+confirmatory      accept    2     2        2      0
+paraphrase-low    accept    5     0        0      5
+paraphrase-high   accept    5     4        4      1
+
+  Total pairs handled incorrectly at 0.92: 19 / 31
+
+==========================================================================
+SCOPE REPORT: ES-bge-m3
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION -- ES-bge-m3
+--------------------------------------------------------------------------
+category          exp       n      min      max     mean   median
+negation          reject    9   0.8868   0.9625   0.9354   0.9508
+temporal          reject    5   0.7143   0.9055   0.8009   0.7991
+entity            reject    5   0.7642   0.8869   0.8171   0.7991
+confirmatory      accept    2   0.9627   0.9657   0.9642   0.9642
+paraphrase-low    accept    5   0.9138   0.9504   0.9310   0.9264
+paraphrase-high   accept    5   0.9539   0.9976   0.9838   0.9900
+
+--------------------------------------------------------------------------
+NEGATION BY MECHANISM -- ES-bge-m3
+--------------------------------------------------------------------------
+mechanism              n      min      max     mean
+with_without           5   0.8868   0.9602   0.9321
+include_exclude        2   0.9198   0.9247   0.9223
+permit_prohibit        2   0.9508   0.9625   0.9566
+
+--------------------------------------------------------------------------
+SAFE THRESHOLD ANALYSIS -- ES-bge-m3
+--------------------------------------------------------------------------
+
+  Scenario: ALL adverse categories
+    Highest adverse similarity (should NOT hit): 0.9625
+    Lowest accept similarity   (SHOULD hit):     0.9138
+    NO SAFE THRESHOLD EXISTS  (gap: -0.0487)
+
+  Scenario: EXCLUDING negation
+    Highest adverse similarity (should NOT hit): 0.9055
+    Lowest accept similarity   (SHOULD hit):     0.9138
+    SAFE THRESHOLD EXISTS: 0.9096  (gap: +0.0083)
+    NOTE: gap is under 0.02 -- within noise at this sample size.
+
+--------------------------------------------------------------------------
+DECISION MATRIX AT CURRENT THRESHOLD (0.92) -- ES-bge-m3
+--------------------------------------------------------------------------
+category          exp       n  hits  correct  wrong
+negation          reject    9     6        3      6
+temporal          reject    5     0        5      0
+entity            reject    5     0        5      0
+confirmatory      accept    2     2        2      0
+paraphrase-low    accept    5     3        3      2
+paraphrase-high   accept    5     5        5      0
+
+  Total pairs handled incorrectly at 0.92: 8 / 31
+
+==========================================================================
+SCOPE REPORT: EN-nomic-embed-text
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION -- EN-nomic-embed-text
+--------------------------------------------------------------------------
+category          exp       n      min      max     mean   median
+negation          reject    9   0.9218   0.9807   0.9520   0.9455
+confirmatory      accept    2   0.9691   0.9920   0.9805   0.9805
+paraphrase-high   accept    5   0.9099   0.9964   0.9495   0.9414
+
+--------------------------------------------------------------------------
+NEGATION BY MECHANISM -- EN-nomic-embed-text
+--------------------------------------------------------------------------
+mechanism              n      min      max     mean
+with_without           5   0.9218   0.9797   0.9504
+include_exclude        2   0.9423   0.9513   0.9468
+permit_prohibit        2   0.9415   0.9807   0.9611
+
+--------------------------------------------------------------------------
+SAFE THRESHOLD ANALYSIS -- EN-nomic-embed-text
+--------------------------------------------------------------------------
+
+  Scenario: ALL adverse categories
+    Highest adverse similarity (should NOT hit): 0.9807
+    Lowest accept similarity   (SHOULD hit):     0.9099
+    NO SAFE THRESHOLD EXISTS  (gap: -0.0707)
+
+  Scenario: EXCLUDING negation
+    (this scope lacks both reject and accept pairs)
+
+--------------------------------------------------------------------------
+DECISION MATRIX AT CURRENT THRESHOLD (0.92) -- EN-nomic-embed-text
+--------------------------------------------------------------------------
+category          exp       n  hits  correct  wrong
+negation          reject    9     9        0      9
+confirmatory      accept    2     2        2      0
+paraphrase-high   accept    5     3        3      2
+
+  Total pairs handled incorrectly at 0.92: 11 / 16
+
+==========================================================================
+CROSS COMPARISON -- same pairs, different embedders / languages
+==========================================================================
+pair           category          ES-nomic-embed-tex          ES-bge-m3 EN-nomic-embed-tex
+-----------------------------------------------------------------------------------------
+neg-01         negation                      0.9971             0.9520                  -
+neg-02         negation                      0.9984             0.9594                  -
+neg-03         negation                      0.9811             0.9198                  -
+neg-06         negation                      0.9976             0.8868                  -
+neg-07         negation                      0.9982             0.9022                  -
+neg-08         negation                      0.9968             0.9602                  -
+neg-09         negation                      0.9851             0.9247                  -
+neg-10         negation                      0.9562             0.9508                  -
+neg-11         negation                      0.9281             0.9625                  -
+cnf-01         confirmatory                  0.9715             0.9627                  -
+cnf-02         confirmatory                  0.9702             0.9657                  -
+tmp-01         temporal                      0.9646             0.8129                  -
+tmp-02         temporal                      0.9054             0.7728                  -
+tmp-03         temporal                      0.9530             0.9055                  -
+tmp-04         temporal                      0.9141             0.7991                  -
+tmp-05         temporal                      0.9492             0.7143                  -
+ent-01         entity                        0.8706             0.7797                  -
+ent-02         entity                        0.8966             0.7991                  -
+ent-03         entity                        0.8827             0.8869                  -
+ent-04         entity                        0.7498             0.7642                  -
+ent-05         entity                        0.9210             0.8556                  -
+par-01         paraphrase-low                0.7787             0.9468                  -
+par-02         paraphrase-low                0.8515             0.9138                  -
+par-03         paraphrase-low                0.7470             0.9504                  -
+par-04         paraphrase-low                0.9060             0.9264                  -
+par-05         paraphrase-low                0.7502             0.9178                  -
+parhi-01       paraphrase-high               0.9372             0.9834                  -
+parhi-02       paraphrase-high               0.9745             0.9976                  -
+parhi-03       paraphrase-high               0.8968             0.9940                  -
+parhi-04       paraphrase-high               0.9337             0.9900                  -
+parhi-05       paraphrase-high               0.9589             0.9539                  -
+neg-01-en      negation                           -                  -             0.9797
+neg-02-en      negation                           -                  -             0.9648
+neg-03-en      negation                           -                  -             0.9423
+neg-06-en      negation                           -                  -             0.9403
+neg-07-en      negation                           -                  -             0.9218
+neg-08-en      negation                           -                  -             0.9455
+neg-09-en      negation                           -                  -             0.9513
+neg-10-en      negation                           -                  -             0.9807
+neg-11-en      negation                           -                  -             0.9415
+cnf-01-en      confirmatory                       -                  -             0.9920
+cnf-02-en      confirmatory                       -                  -             0.9691
+parhi-01-en    paraphrase-high                    -                  -             0.9832
+parhi-02-en    paraphrase-high                    -                  -             0.9964
+parhi-03-en    paraphrase-high                    -                  -             0.9414
+parhi-04-en    paraphrase-high                    -                  -             0.9165
+parhi-05-en    paraphrase-high                    -                  -             0.9099
+
+==========================================================================
+EXECUTIVE SUMMARY
+==========================================================================
+
+Negation similarity across scopes:
+  ES-nomic-embed-text        n=9   min=0.9281  max=0.9984  mean=0.9821
+  ES-bge-m3                  n=9   min=0.8868  max=0.9625  mean=0.9354
+  EN-nomic-embed-text        n=9   min=0.9218  max=0.9807  mean=0.9520
+
+High-overlap paraphrase similarity across scopes (control):
+  ES-nomic-embed-text        n=5   min=0.8968  max=0.9745  mean=0.9402
+  ES-bge-m3                  n=5   min=0.9539  max=0.9976  mean=0.9838
+  EN-nomic-embed-text        n=5   min=0.9099  max=0.9964  mean=0.9495
+
+Threshold viability per scope:
+  ES-nomic-embed-text        gap(all)= -0.2514   gap(no negation)= -0.2176
+  ES-bge-m3                  gap(all)= -0.0487   gap(no negation)= +0.0083
+  EN-nomic-embed-text        gap(all)= -0.0707   gap(no negation)=     n/a
+
+How to read this:
+  gap > 0  means a cosine threshold separates reject from accept.
+  If gap(all) < 0 but gap(no negation) > 0, the embedder handles
+  temporal and entity distinctions but collapses polarity.
+  Compare ES-nomic vs ES-bge-m3 to isolate the EMBEDDER.
+  Compare ES-nomic vs EN-nomic to isolate the LANGUAGE.
+
+==========================================================================
+Save this output. It is the evidence for the next article.
+==========================================================================

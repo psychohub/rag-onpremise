@@ -1,0 +1,137 @@
+==========================================================================
+Contrast analysis -- lexical overlap controlled
+==========================================================================
+Source: resultados_v4.json
+Generated: 2026-08-08T16:17:17
+Metric:  cosine similarity
+  All scores, margins and threshold candidates below are in the
+  units of this metric. They are not comparable across metrics.
+
+==========================================================================
+SCOPE: ES-nomic-embed-text
+==========================================================================
+
+  confirmatory  (accept)   vs   negation  (reject)
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    confirmatory      n=2   min=0.9702 max=0.9715 mean=0.9709
+    negation          n=9   min=0.9281 max=0.9984 mean=0.9821
+    AUC = 0.2222  INVERTED
+    margin (min accept - max reject) = -0.0282   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   negation  (reject)
+    Both differ by roughly one token. Overlap approximately matched.
+    paraphrase-high   n=5   min=0.8968 max=0.9745 mean=0.9402
+    negation          n=9   min=0.9281 max=0.9984 mean=0.9821
+    AUC = 0.1333  INVERTED
+    margin (min accept - max reject) = -0.1017   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   temporal  (reject)
+    Both differ by roughly one token.
+    paraphrase-high   n=5   min=0.8968 max=0.9745 mean=0.9402
+    temporal          n=5   min=0.9054 max=0.9646 mean=0.9372
+    AUC = 0.5200  no separability
+    margin (min accept - max reject) = -0.0678   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   entity  (reject)
+    Both differ by roughly one token.
+    paraphrase-high   n=5   min=0.8968 max=0.9745 mean=0.9402
+    entity            n=5   min=0.7498 max=0.9210 mean=0.8641
+    AUC = 0.9600
+    margin (min accept - max reject) = -0.0242   -> distributions overlap
+
+  paraphrase-low  (accept)   vs   negation  (reject)
+    UNMATCHED overlap. Any separation here may be surface form.
+    paraphrase-low    n=5   min=0.7470 max=0.9060 mean=0.8067
+    negation          n=9   min=0.9281 max=0.9984 mean=0.9821
+    AUC = 0.0000  INVERTED
+    margin (min accept - max reject) = -0.2514   -> distributions overlap
+
+==========================================================================
+SCOPE: ES-bge-m3
+==========================================================================
+
+  confirmatory  (accept)   vs   negation  (reject)
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    confirmatory      n=2   min=0.9627 max=0.9657 mean=0.9642
+    negation          n=9   min=0.8868 max=0.9625 mean=0.9354
+    AUC = 1.0000  ordered but margin under 0.02
+    margin (min accept - max reject) = +0.0002   threshold candidate: 0.9626
+
+  paraphrase-high  (accept)   vs   negation  (reject)
+    Both differ by roughly one token. Overlap approximately matched.
+    paraphrase-high   n=5   min=0.9539 max=0.9976 mean=0.9838
+    negation          n=9   min=0.8868 max=0.9625 mean=0.9354
+    AUC = 0.9333
+    margin (min accept - max reject) = -0.0086   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   temporal  (reject)
+    Both differ by roughly one token.
+    paraphrase-high   n=5   min=0.9539 max=0.9976 mean=0.9838
+    temporal          n=5   min=0.7143 max=0.9055 mean=0.8009
+    AUC = 1.0000
+    margin (min accept - max reject) = +0.0484   threshold candidate: 0.9297
+
+  paraphrase-high  (accept)   vs   entity  (reject)
+    Both differ by roughly one token.
+    paraphrase-high   n=5   min=0.9539 max=0.9976 mean=0.9838
+    entity            n=5   min=0.7642 max=0.8869 mean=0.8171
+    AUC = 1.0000
+    margin (min accept - max reject) = +0.0669   threshold candidate: 0.9204
+
+  paraphrase-low  (accept)   vs   negation  (reject)
+    UNMATCHED overlap. Any separation here may be surface form.
+    paraphrase-low    n=5   min=0.9138 max=0.9504 mean=0.9310
+    negation          n=9   min=0.8868 max=0.9625 mean=0.9354
+    AUC = 0.3556  INVERTED
+    margin (min accept - max reject) = -0.0487   -> distributions overlap
+
+==========================================================================
+SCOPE: EN-nomic-embed-text
+==========================================================================
+
+  confirmatory  (accept)   vs   negation  (reject)
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    confirmatory      n=2   min=0.9691 max=0.9920 mean=0.9805
+    negation          n=9   min=0.9218 max=0.9807 mean=0.9520
+    AUC = 0.8889
+    margin (min accept - max reject) = -0.0116   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   negation  (reject)
+    Both differ by roughly one token. Overlap approximately matched.
+    paraphrase-high   n=5   min=0.9099 max=0.9964 mean=0.9495
+    negation          n=9   min=0.9218 max=0.9807 mean=0.9520
+    AUC = 0.4444  no separability
+    margin (min accept - max reject) = -0.0707   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   temporal  (reject)
+    Both differ by roughly one token.
+    -> not available in this scope.
+
+  paraphrase-high  (accept)   vs   entity  (reject)
+    Both differ by roughly one token.
+    -> not available in this scope.
+
+  paraphrase-low  (accept)   vs   negation  (reject)
+    UNMATCHED overlap. Any separation here may be surface form.
+    -> not available in this scope.
+
+==========================================================================
+DECISIVE CONTRAST ACROSS SCOPES
+confirmatory (accept) vs negation (reject)
+==========================================================================
+
+  ES-nomic-embed-text        AUC = 0.2222
+  ES-bge-m3                  AUC = 1.0000
+  EN-nomic-embed-text        AUC = 0.8889
+
+  Both populations are single negative-particle insertions with
+  opposite required cache behaviour. An AUC near 0.50 here means
+  the score (cosine similarity) carries no information about whether
+  a negation changes the answer -- which is the property a
+  semantic cache depends on.
+
+  CAVEAT: confirmatory n=2 per scope. This contrast is the
+  cleanest available but the smallest. Report the n alongside
+  the AUC, always.
+
+==========================================================================
