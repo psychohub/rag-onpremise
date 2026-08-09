@@ -1,9 +1,9 @@
 """
 Pares de preguntas para el experimento de umbral (v3).
 
-Cambios respecto de pairs_v2.py
+Cambios respecto de pairs.py
 -------------------------------
-1. RECLASIFICACION. Los pares neg-04 y neg-05 de v2 estaban mal
+1. RECLASIFICACION. Los pares neg-04 y neg-05 de pairs.py estaban mal
    etiquetados. En español, la interrogativa negativa confirmatoria
    ("¿No es obligatorio X?") NO invierte la respuesta correcta: un
    sistema correcto responde lo mismo que a "¿Es obligatorio X?".
@@ -30,7 +30,7 @@ Cambios respecto de pairs_v2.py
 
 5. ESCOPO INGLES AUTOSUFICIENTE. PAIRS_EN ahora incluye categorias
    accept, de modo que el analisis de umbral seguro aplica tambien
-   ahi (en v2 el scope EN solo tenia negaciones y el analisis no
+   ahi (antes el scope EN solo tenia negaciones y el analisis no
    corria).
 
 Categorias
@@ -142,7 +142,14 @@ PAIRS_ES = [
     # =========================================================
     # CONFIRMATORY (n=2) - el twin SI debe pasar.
     # Interrogativa negativa confirmatoria: misma respuesta.
-    # Eran neg-04 y neg-05 en pairs_v2.py.
+    # Eran neg-04 y neg-05 en pairs.py.
+    #
+    # El campo "was_in_v2_as" conserva el identificador anterior para
+    # poder rastrear el par entre versiones. El "v2" del nombre refiere
+    # a una iteracion intermedia que no se publico; los pares vienen de
+    # pairs.py, que si esta en el repo. El nombre del campo se mantiene
+    # tal cual para no cambiar el esquema de datos ya escrito en los
+    # archivos .json de resultados.
     # =========================================================
     {
         "id": "cnf-01",
@@ -164,7 +171,7 @@ PAIRS_ES = [
     },
 
     # =========================================================
-    # TEMPORAL (n=5) - sin cambios respecto de v2.
+    # TEMPORAL (n=5) - sin cambios respecto de pairs.py.
     # =========================================================
     {
         "id": "tmp-01", "category": "temporal", "language": "es", "expected_behavior": "reject",
@@ -193,7 +200,7 @@ PAIRS_ES = [
     },
 
     # =========================================================
-    # ENTIDAD (n=5) - sin cambios respecto de v2.
+    # ENTIDAD (n=5) - sin cambios respecto de pairs.py.
     # =========================================================
     {
         "id": "ent-01", "category": "entity", "language": "es", "expected_behavior": "reject",
@@ -223,7 +230,7 @@ PAIRS_ES = [
 
     # =========================================================
     # PARAFRASIS BAJO SOLAPAMIENTO (n=5) - el twin SI debe pasar.
-    # Eran "paraphrase" en v2, mismos IDs y textos.
+    # Eran "paraphrase" en pairs.py, mismos IDs y textos.
     # =========================================================
     {
         "id": "par-01", "category": "paraphrase-low", "language": "es", "expected_behavior": "accept",
