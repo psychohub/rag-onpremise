@@ -1,12 +1,12 @@
 """
 Experimento de umbral (v3) - cross-embedder + cross-language.
 
-Cambios respecto de test_threshold_v2.py
-----------------------------------------
+Cambios respecto de la version anterior de este script
+------------------------------------------------------
 1. Las categorias se importan desde pairs_v3 en lugar de estar
-   hardcodeadas. En v2, agregar una categoria nueva al archivo de
+   hardcodeadas. Antes, agregar una categoria nueva al archivo de
    pares hacia que el reporte la omitiera en silencio.
-2. Salida 100% ASCII. La version v2 fallaba en Windows con
+2. Salida 100% ASCII. La version anterior fallaba en Windows con
    UnicodeEncodeError al redirigir stdout bajo codec cp1252.
 3. Desglose por "mechanism" dentro de negacion (with_without,
    include_exclude, permit_prohibit), para reportar si el colapso
