@@ -24,6 +24,12 @@ adversas llegan a 0.9984 mientras las de paráfrasis se quedan bajo 0.9060.
 Como consecuencia, el caché semántico está deshabilitado por defecto en
 este repositorio.
 
+> **Errata (agosto 2026).** El techo de 0.9060 vale únicamente para las
+> paráfrasis de bajo solapamiento léxico usadas en la primera corrida.
+> Con paráfrasis de alto solapamiento y el mismo embedder, el máximo es
+> 0.9745. La conclusión —que no existe umbral seguro— se sostiene, pero
+> por un margen menor que el que sugiere esta cifra. Ver §9.0 y §9.5.
+
 ---
 
 ## 1. Contexto
@@ -121,6 +127,9 @@ instalados localmente.
 **Total: 9 de 15 pares adversos serían servidos incorrectamente por el
 caché. 5 de 5 paráfrasis genuinas serían rechazadas.**
 
+> **Errata (agosto 2026):** dos de los cinco pares de negación estaban
+> mal clasificados; el conteo correcto es 7 de 13. Ver §9.0.
+
 ### 4.3 Análisis de umbral seguro
 
 - Similitud más alta entre pares adversos: **0.9984**
@@ -154,6 +163,13 @@ con contraste semántico general. En dominios donde la respuesta correcta
 depende de distinciones finas — clínica, legal, administrativa —
 cualquier caché basado únicamente en similitud coseno de embeddings es
 un vector de errores silenciosos.
+
+> **Errata (agosto 2026).** Esta subsección tiene dos afirmaciones que no
+> se sostienen. La atribución al español está refutada por medición
+> propia: los mismos pares de negación traducidos al inglés colapsan
+> igual. Y la generalización a "los embeddings basados en transformers"
+> no tenía fuente, además de que la medición posterior la matiza — otro
+> embedder sí resuelve entidad y tiempo. Ver §9.2 y §9.3.
 
 ### 5.2 Consecuencia para el diseño del sistema
 
@@ -216,6 +232,12 @@ la naturaleza no determinista de algunas operaciones del embedder, pero
 la conclusión estructural (solapamiento de distribuciones adversas y de
 paráfrasis) es estable en múltiples corridas.
 
+> **Errata (agosto 2026).** No se observó tal variación. Comparando 78
+> pares entre dos corridas independientes, las similitudes coinciden a
+> cuatro decimales sin excepción. Se retira la advertencia sobre no
+> determinismo; la afirmación sobre estabilidad de la conclusión sí se
+> confirma. Ver §9.5.
+
 ## 8. Referencias
 
 - **Thread original de sugerencia:**
@@ -228,6 +250,216 @@ paráfrasis) es estable en múltiples corridas.
   `dev.to/iqtechsolutions/comment/3c9n3`
 
 Ambos comentarios motivaron los cambios en `RagService.cs` de agosto 2026.
+
+## 9. Errata y ampliación (agosto 2026)
+
+Este reporte documentó la primera corrida del experimento: 20 pares, un
+embedder, español. Corridas posteriores ampliaron el corpus a 31 pares en
+español y 16 en inglés, agregaron un segundo embedder y un cross-encoder,
+y cambiaron la forma de reportar. Esta sección corrige lo que quedó mal y
+registra lo que se aprendió después.
+
+**Las secciones 1 a 8 se conservan sin modificar**, como registro de lo
+que se publicó. Eso no significa que todas sus cifras sigan siendo
+correctas: §9.0 y §9.5 listan cuáles no lo son. El documento está
+enlazado públicamente, y reescribirlas en su lugar sería peor que
+corregirlas acá.
+
+**La conclusión operativa no cambia.** El caché semántico sigue
+deshabilitado por defecto, y la evidencia posterior la refuerza: bajo
+barrido completo de umbrales con `nomic-embed-text` en español, el umbral
+más bajo que produce cero falsos positivos es 1.000, y ahí sobreviven 0
+de 12 hits legítimos. La configuración que minimiza errores es no
+cachear.
+
+Esta errata corrige dos errores del experimento original. Uno es de
+clasificación: dos pares de la categoría "Negación" no eran negaciones en
+el sentido que el experimento requiere (§9.0). El otro es de diseño, y es
+el más importante: **el control estaba mal elegido** (§9.1).
+
+La sección 4 concluyó que no existe umbral seguro comparando pares
+adversos —que difieren de su gemela en un solo token— contra paráfrasis
+que compartían pocos tokens con la suya. Las dos poblaciones no eran
+comparables en forma superficial. Parte de la separación observada podía
+explicarse por solapamiento léxico en vez de por semántica, y eso
+significa que la conclusión podía ser correcta y el argumento igual ser
+inválido.
+
+Al repetir el experimento con paráfrasis de solapamiento igualado, la
+conclusión se sostuvo (§9.1). El caché sigue deshabilitado y por la misma
+razón de fondo. Lo que cambió es la calidad del argumento: el margen real
+es menor que el publicado, y la evidencia que el reporte original citó
+como resultado principal resultó ser la más débil de las disponibles.
+
+El colapso de la negación en embeddings de propósito general no es un
+hallazgo nuevo. Que un control mal elegido pueda sostener una conclusión
+correcta por el motivo equivocado sí es específico de este experimento, y
+es la razón por la que esta errata lo trata como su resultado principal.
+
+### 9.0 Dos pares estaban mal clasificados
+
+Dos de los cinco pares de la categoría "Negación" de §4.1 no eran
+negaciones en el sentido que el experimento requiere:
+
+- `neg-04`: "¿Es obligatorio presentar la solicitud con anticipación?"
+  contra "¿No es obligatorio presentar la solicitud con anticipación?"
+- `neg-05`: "¿Los contratos temporales tienen derecho a aguinaldo?"
+  contra "¿Los contratos temporales no tienen derecho a aguinaldo?"
+
+En español la interrogativa negativa es confirmatoria: pide confirmar
+lo mismo que la afirmativa. Un sistema correcto responde igual a
+ambas. Estaban clasificados como pares que el caché debe **rechazar**
+cuando en realidad debe **aceptarlos**.
+
+Consecuencias sobre las cifras publicadas:
+
+- **§4.1, fila Negación.** El mínimo de 0.9702 corresponde a `neg-05`,
+  un par inválido. La fila describe cinco pares de los cuales tres
+  eran válidos.
+- **§4.2.** "9 de 15 pares adversos" pasa a 7 de 13.
+- **§4.3 no cambia.** La similitud adversa máxima, 0.9984, es
+  `neg-02`, un par válido. La conclusión y la decisión de §6 se
+  sostienen sin apoyarse en los pares retirados.
+
+En el corpus ampliado ambos pares sobreviven como `cnf-01` y `cnf-02`,
+en la categoría `confirmatory`, con comportamiento esperado "aceptar".
+Los identificadores `neg-04` y `neg-05` quedaron retirados y no se
+reutilizaron: las negaciones nuevas empiezan en `neg-06`, para que
+nadie compare ambas versiones y encuentre que el mismo identificador
+designa dos pares distintos. El campo `was_in_v2_as` preserva la traza.
+
+El error se detectó al construir el corpus ampliado, no al ser
+señalado externamente.
+
+### 9.1 El control era demasiado fácil
+
+La categoría "Paráfrasis (control)" de §4.1 está compuesta enteramente
+por paráfrasis de **bajo solapamiento léxico**: la consulta y su gemela
+comparten pocos tokens. Los pares adversos, en cambio, difieren en un
+solo token. Comparar unos contra otros produce separación aparente que
+puede explicarse por forma superficial y no por semántica.
+
+El corpus ampliado agregó paráfrasis de **alto** solapamiento — que
+difieren en un token, igual que los adversos. Con el solapamiento
+controlado la conclusión se sostiene, pero el margen es el que hay que
+citar:
+
+| Contraste (`nomic-embed-text`, español) | AUC | margen | p exacto |
+|---|---|---|---|
+| paráfrasis alta vs negación (solapamiento igualado) | 0.1333 | −0.1017 | 0.0290 |
+| paráfrasis baja vs negación (solapamiento NO igualado) | 0.0000 | −0.2514 | 0.0010 |
+
+La segunda fila es la que sostenía el reporte original. Es la más vistosa
+y la más confundida. **La primera es la válida.**
+
+Que la distinción importa se demuestra con el otro embedder: `bge-m3` da
+AUC 0.3556 en el contraste no igualado y 0.9333 en el igualado, sobre los
+mismos pares adversos. La única diferencia entre ambos es el solapamiento
+léxico de la población de control.
+
+### 9.2 No es el español
+
+§5.1 atribuyó el colapso a que `nomic-embed-text` se entrenó
+mayoritariamente sobre inglés y a que en español administrativo la
+negación es un cambio de un solo token. **Esa explicación no se
+sostiene.** Los nueve pares de negación se tradujeron al inglés y se
+volvieron a medir con el mismo modelo: colapsan igual (AUC 0.4444,
+p=0.7972, margen −0.0707). El fenómeno es del modelo, no del idioma.
+
+La parte de la explicación que sí se sostiene es la otra: la señal que
+identifica el tema ocupa la mayor parte del contenido y el embedder la
+captura con alta fidelidad, mientras que la señal de polaridad es mínima.
+Eso es independiente del idioma.
+
+Se retira además la afirmación de que este comportamiento es "una
+propiedad conocida de los embeddings basados en transformers". No tenía
+fuente, y la medición de §9.3 la matiza.
+
+### 9.3 Otro embedder resuelve parte del problema, no la polaridad
+
+`bge-m3` sobre los mismos pares en español:
+
+| Contraste | AUC | margen |
+|---|---|---|
+| paráfrasis alta vs temporal | 1.0000 | +0.0484 |
+| paráfrasis alta vs entidad | 1.0000 | +0.0669 |
+| paráfrasis alta vs negación | 0.9333 | **−0.0086** |
+
+Resuelve limpiamente entidad y tiempo, que `nomic-embed-text` no
+resolvía. En polaridad queda **indeterminado**: el margen es negativo, y
+su signo lo decide un solo par — quitando `parhi-05` pasa a +0.0209. Con
+n=14 los datos no alcanzan para decidir de qué lado está. La afirmación
+correcta no es "bge-m3 funciona", es "no lo sabemos".
+
+### 9.4 Un cross-encoder no lo arregla
+
+Se probó `cross-encoder/ms-marco-MiniLM-L-6-v2` como paso de confirmación
+sobre los mismos pares, puntuando en ambas direcciones — un cross-encoder
+es asimétrico y un caché necesita una relación simétrica. Resultado
+negativo: en español el contraste primario no alcanza significancia
+(AUC 0.3333, p=0.3636) y en inglés el puntaje está
+**significativamente invertido** (AUC 0.0667, p=0.0070, margen −6.27 en
+unidades de logit). En ambos idiomas el punto de operación que minimiza
+errores vuelve a ser no cachear.
+
+La razón es estructural y se lee en las distribuciones: en inglés, las
+dos poblaciones que hay que **aceptar** quedan una por debajo y otra por
+encima de la población que hay que **rechazar** (paráfrasis alta 4.58 <
+negación 7.69 < confirmatorias 9.31). No hay corte posible.
+
+Advertencia de validez: este modelo fue entrenado para relevancia
+consulta-pasaje, no para equivalencia entre consultas, y la negación
+preserva casi intacta la relevancia temática. Es evidencia contra **este**
+modelo para **esta** tarea, no contra los cross-encoders en general.
+
+Latencia medida, por si alguien evalúa el costo: 32.6 y 36.4 ms de media
+por par en dos corridas, en CPU, cubriendo las dos direcciones y sin
+batching. La carga del modelo toma entre 4 y 20 segundos una sola vez,
+según esté el caché de disco. No se midió el costo end-to-end de una
+consulta completa, así que estas cifras no dicen por sí solas si el paso
+de confirmación cabe en un presupuesto de latencia dado.
+
+### 9.5 Correcciones puntuales
+
+- **Resumen ejecutivo.** "las similitudes de paráfrasis se quedan bajo
+  0.9060" vale solo para las paráfrasis de bajo solapamiento de la
+  primera corrida. Con paráfrasis de alto solapamiento y el mismo
+  embedder, el máximo es **0.9745**.
+- **§4.1, negación.** Con n=5 el mínimo era 0.9702 — que además
+  pertenecía a un par inválido (§9.0). Con el set ampliado y depurado
+  (n=9, incorpora inversiones del tipo permitir/prohibir) el mínimo baja
+  a **0.9281**. El rango real es más ancho que el publicado.
+- **§4.2.** La tabla de conteos a un umbral fijo es inestable con este
+  tamaño de muestra y no debe citarse como tasa. Se conserva como
+  referencia operativa del default enviado; el reporte válido es el
+  barrido completo de umbrales y el AUC.
+- **§7.** No se observó no determinismo. Comparando 78 pares entre dos
+  corridas independientes, las similitudes coinciden a cuatro decimales
+  sin ninguna excepción. Se retira esa advertencia.
+
+### 9.6 Materiales adicionales
+
+Al corpus y script originales (`pairs.py`, `test_threshold.py`) se suman:
+
+| Archivo | Qué hace |
+|---|---|
+| `pairs_v3.py` | Corpus ampliado: 31 pares ES, 16 EN, con el mecanismo de negación etiquetado |
+| `test_threshold_v4.py` | Barrido de umbrales, AUC, punto de operación seguro; persiste `resultados_v4.json` |
+| `analyze_contrasts.py` | Contrastes con solapamiento léxico controlado |
+| `significance.py` | Test exacto de permutación sobre AUC y jackknife del margen |
+| `test_reranker.py` | Puntuación con cross-encoder en el mismo esquema JSON |
+
+Los archivos `.json` guardan las similitudes crudas: el reanálisis no
+requiere recalcular embeddings ni tener Ollama corriendo.
+
+Sobre el corpus: **`pairs_v3.py` no es un superconjunto de `pairs.py`.**
+Conserva `neg-01` a `neg-03`, reclasifica `neg-04` y `neg-05` como
+`cnf-01` y `cnf-02` por el motivo explicado en §9.0, y agrega seis pares
+nuevos de negación que cubren tres mecanismos de inversión de polaridad
+(con/sin, incluye/excluye, permite/prohíbe). Los 20 pares originales
+siguen disponibles sin cambios en `pairs.py`, de modo que las cifras de
+§4 se pueden reproducir tal como fueron publicadas, incluidas las que
+§9.0 corrige.
 
 ---
 
