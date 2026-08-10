@@ -1,0 +1,97 @@
+==========================================================================
+Contrast analysis -- lexical overlap controlled
+==========================================================================
+Source: resultados_reranker_bge.json
+Generated: 2026-08-10T13:32:02
+Metric:  cross-encoder probability (sigmoid)
+  All scores, margins and threshold candidates below are in the
+  units of this metric. They are not comparable across metrics.
+
+==========================================================================
+SCOPE: ES-bge-reranker-v2-m3
+==========================================================================
+
+  confirmatory  (accept)   vs   negation  (reject)
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    confirmatory      n=2   min=1.0000 max=1.0000 mean=1.0000
+    negation          n=9   min=0.9747 max=1.0000 mean=0.9952
+    AUC = 0.8333
+    margin (min accept - max reject) = -0.0000   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   negation  (reject)
+    Both differ by roughly one token. Overlap approximately matched.
+    paraphrase-high   n=5   min=0.9999 max=1.0000 mean=0.9999
+    negation          n=9   min=0.9747 max=1.0000 mean=0.9952
+    AUC = 0.7667
+    margin (min accept - max reject) = -0.0001   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   temporal  (reject)
+    Both differ by roughly one token.
+    paraphrase-high   n=5   min=0.9999 max=1.0000 mean=0.9999
+    temporal          n=5   min=0.1132 max=0.9967 mean=0.5974
+    AUC = 1.0000  ordered but margin under 0.02
+    margin (min accept - max reject) = +0.0032   threshold candidate: 0.9983
+
+  paraphrase-high  (accept)   vs   entity  (reject)
+    Both differ by roughly one token.
+    paraphrase-high   n=5   min=0.9999 max=1.0000 mean=0.9999
+    entity            n=5   min=0.5543 max=0.9933 mean=0.8787
+    AUC = 1.0000  ordered but margin under 0.02
+    margin (min accept - max reject) = +0.0065   threshold candidate: 0.9966
+
+  paraphrase-low  (accept)   vs   negation  (reject)
+    UNMATCHED overlap. Any separation here may be surface form.
+    paraphrase-low    n=5   min=0.9961 max=0.9996 mean=0.9985
+    negation          n=9   min=0.9747 max=1.0000 mean=0.9952
+    AUC = 0.3111  INVERTED
+    margin (min accept - max reject) = -0.0038   -> distributions overlap
+
+==========================================================================
+SCOPE: EN-bge-reranker-v2-m3
+==========================================================================
+
+  confirmatory  (accept)   vs   negation  (reject)
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    confirmatory      n=2   min=1.0000 max=1.0000 mean=1.0000
+    negation          n=9   min=0.9545 max=1.0000 mean=0.9887
+    AUC = 0.8333
+    margin (min accept - max reject) = -0.0000   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   negation  (reject)
+    Both differ by roughly one token. Overlap approximately matched.
+    paraphrase-high   n=5   min=0.9998 max=1.0000 mean=0.9999
+    negation          n=9   min=0.9545 max=1.0000 mean=0.9887
+    AUC = 0.8222
+    margin (min accept - max reject) = -0.0001   -> distributions overlap
+
+  paraphrase-high  (accept)   vs   temporal  (reject)
+    Both differ by roughly one token.
+    -> not available in this scope.
+
+  paraphrase-high  (accept)   vs   entity  (reject)
+    Both differ by roughly one token.
+    -> not available in this scope.
+
+  paraphrase-low  (accept)   vs   negation  (reject)
+    UNMATCHED overlap. Any separation here may be surface form.
+    -> not available in this scope.
+
+==========================================================================
+DECISIVE CONTRAST ACROSS SCOPES
+confirmatory (accept) vs negation (reject)
+==========================================================================
+
+  ES-bge-reranker-v2-m3      AUC = 0.8333
+  EN-bge-reranker-v2-m3      AUC = 0.8333
+
+  Both populations are single negative-particle insertions with
+  opposite required cache behaviour. An AUC near 0.50 here means
+  the score (cross-encoder probability (sigmoid)) carries no information about whether
+  a negation changes the answer -- which is the property a
+  semantic cache depends on.
+
+  CAVEAT: confirmatory n=2 per scope. This contrast is the
+  cleanest available but the smallest. Report the n alongside
+  the AUC, always.
+
+==========================================================================

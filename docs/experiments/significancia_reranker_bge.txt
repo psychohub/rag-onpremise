@@ -1,0 +1,140 @@
+==========================================================================
+Significance -- exact permutation test on AUC
+==========================================================================
+Source: resultados_reranker_bge.json
+Generated: 2026-08-10T13:32:02
+Metric:  cross-encoder probability (sigmoid)
+  Margins and thresholds below are in the units of this metric.
+  AUC and p-values are not: they depend only on rank order, so
+  they ARE comparable across metrics. Margins are NOT.
+
+H0: accept/reject labels carry no information about the score
+    (cross-encoder probability (sigmoid)).
+Two-sided test on the deviation of AUC from 0.50.
+Pre-specified primary contrast: paraphrase-high vs negation.
+All others are descriptive and are not corrected for multiplicity.
+
+==========================================================================
+SCOPE: ES-bge-reranker-v2-m3
+==========================================================================
+
+  confirmatory (accept) vs negation (reject)  [descriptive]
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    n = 2 vs 9   label assignments = 55   [exact]
+    AUC = 0.8333   p = 0.2182  (not significant at 0.05)
+    lowest attainable p at this n: 0.0364
+      -> this contrast cannot reach p < 0.01 by construction.
+    best operating point: threshold 1.0000   errors 2/11 (rate 0.182)
+      false hits 2   legitimate hits lost 0/2
+    margin = -0.0000   jackknife range [-0.0000, -0.0000]
+      most influential pair: cnf-02 (accept) -- removing it moves the margin by 0.0000
+      sign of margin is stable across all leave-one-out replicates.
+
+  paraphrase-high (accept) vs negation (reject)  [PRIMARY, pre-specified]
+    Both differ by roughly one token. Overlap approximately matched.
+    n = 5 vs 9   label assignments = 2002   [exact]
+    AUC = 0.7667   p = 0.1174  (not significant at 0.05)
+    lowest attainable p at this n: 0.0010
+    best operating point: threshold 1.0000   errors 3/14 (rate 0.214)
+      false hits 1   legitimate hits lost 2/5
+    margin = -0.0001   jackknife range [-0.0001, -0.0000]
+      most influential pair: parhi-05 (accept) -- removing it moves the margin by 0.0001
+      sign of margin is stable across all leave-one-out replicates.
+
+  paraphrase-high (accept) vs temporal (reject)  [descriptive]
+    Both differ by roughly one token.
+    n = 5 vs 5   label assignments = 252   [exact]
+    AUC = 1.0000   p = 0.0079  **
+    lowest attainable p at this n: 0.0079
+      -> p is AT the floor. The test cannot distinguish this
+         result from any other extreme one. One bit of info.
+    best operating point: threshold 0.9967   errors 0/10 (rate 0.000)
+      false hits 0   legitimate hits lost 0/5
+    margin = +0.0032   jackknife range [+0.0032, +0.1459]
+      most influential pair: tmp-01 (reject) -- removing it moves the margin by 0.1427
+      sign of margin is stable across all leave-one-out replicates.
+
+  paraphrase-high (accept) vs entity (reject)  [descriptive]
+    Both differ by roughly one token.
+    n = 5 vs 5   label assignments = 252   [exact]
+    AUC = 1.0000   p = 0.0079  **
+    lowest attainable p at this n: 0.0079
+      -> p is AT the floor. The test cannot distinguish this
+         result from any other extreme one. One bit of info.
+    best operating point: threshold 0.9933   errors 0/10 (rate 0.000)
+      false hits 0   legitimate hits lost 0/5
+    margin = +0.0065   jackknife range [+0.0065, +0.0211]
+      most influential pair: ent-05 (reject) -- removing it moves the margin by 0.0145
+      sign of margin is stable across all leave-one-out replicates.
+
+  paraphrase-low (accept) vs negation (reject)  [descriptive]
+    UNMATCHED overlap. Any separation here may be surface form.
+    n = 5 vs 9   label assignments = 2002   [exact]
+    AUC = 0.3111   p = 0.2977  (not significant at 0.05)
+    lowest attainable p at this n: 0.0010
+    best operating point: degenerate -- rejects everything
+      the error-minimising configuration is NO CACHE
+    margin = -0.0038   jackknife range [-0.0038, -0.0016]
+      most influential pair: par-04 (accept) -- removing it moves the margin by 0.0022
+      sign of margin is stable across all leave-one-out replicates.
+
+==========================================================================
+SCOPE: EN-bge-reranker-v2-m3
+==========================================================================
+
+  confirmatory (accept) vs negation (reject)  [descriptive]
+    DECISIVE. Both are negative-particle insertions. Overlap matched.
+    n = 2 vs 9   label assignments = 55   [exact]
+    AUC = 0.8333   p = 0.2182  (not significant at 0.05)
+    lowest attainable p at this n: 0.0364
+      -> this contrast cannot reach p < 0.01 by construction.
+    best operating point: threshold 1.0000   errors 1/11 (rate 0.091)
+      false hits 0   legitimate hits lost 1/2
+    margin = -0.0000   jackknife range [-0.0000, +0.0000]
+      most influential pair: cnf-02-en (accept) -- removing it moves the margin by 0.0000
+      SIGN FLIPS on removing: cnf-02-en
+         -> the sign of the margin is not robust to one pair.
+
+  paraphrase-high (accept) vs negation (reject)  [PRIMARY, pre-specified]
+    Both differ by roughly one token. Overlap approximately matched.
+    n = 5 vs 9   label assignments = 2002   [exact]
+    AUC = 0.8222   p = 0.0599  (not significant at 0.05)
+    lowest attainable p at this n: 0.0010
+    best operating point: threshold 1.0000   errors 2/14 (rate 0.143)
+      false hits 0   legitimate hits lost 2/5
+    margin = -0.0001   jackknife range [-0.0001, -0.0000]
+      most influential pair: parhi-05-en (accept) -- removing it moves the margin by 0.0001
+      sign of margin is stable across all leave-one-out replicates.
+
+  paraphrase-high (accept) vs temporal (reject)  [descriptive]
+    Both differ by roughly one token.
+    -> not enough pairs in this scope.
+
+  paraphrase-high (accept) vs entity (reject)  [descriptive]
+    Both differ by roughly one token.
+    -> not enough pairs in this scope.
+
+  paraphrase-low (accept) vs negation (reject)  [descriptive]
+    UNMATCHED overlap. Any separation here may be surface form.
+    -> not enough pairs in this scope.
+
+==========================================================================
+HOW TO READ THIS
+==========================================================================
+
+  A significant AUC below 0.50 means the score is reliably
+  INVERTED: adverse pairs rank above genuine paraphrases.
+
+  A non-significant AUC near 0.50 means the score carries no
+  usable information for this contrast. That is the claim to
+  make -- not that the model 'performs worse', which the
+  data does not support.
+
+  An AUC near 1.00 with a negative or near-zero margin means
+  the ordering is right but the cut point is not usable. A
+  cache needs the cut point, not the ordering.
+
+  The jackknife is not a confidence interval. It answers one
+  question: does this margin depend on a single observation.
+
+==========================================================================

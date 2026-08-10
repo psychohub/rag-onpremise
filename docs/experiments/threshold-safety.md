@@ -255,9 +255,9 @@ Ambos comentarios motivaron los cambios en `RagService.cs` de agosto 2026.
 
 Este reporte documentó la primera corrida del experimento: 20 pares, un
 embedder, español. Corridas posteriores ampliaron el corpus a 31 pares en
-español y 16 en inglés, agregaron un segundo embedder y un cross-encoder,
-y cambiaron la forma de reportar. Esta sección corrige lo que quedó mal y
-registra lo que se aprendió después.
+español y 16 en inglés, agregaron un segundo embedder y dos
+cross-encoders, y cambiaron la forma de reportar. Esta sección corrige lo
+que quedó mal y registra lo que se aprendió después.
 
 **Las secciones 1 a 8 se conservan sin modificar**, como registro de lo
 que se publicó. Eso no significa que todas sus cifras sigan siendo
@@ -412,6 +412,15 @@ consulta-pasaje, no para equivalencia entre consultas, y la negación
 preserva casi intacta la relevancia temática. Es evidencia contra **este**
 modelo para **esta** tarea, no contra los cross-encoders en general.
 
+> **Alcance acotado por §9.7 (agosto 2026).** El título de esta
+> subsección afirma más de lo que un solo modelo puede sostener. Un
+> segundo cross-encoder, `BAAI/bge-reranker-v2-m3`, **no** reproduce la
+> inversión reportada acá: en el contraste primario da AUC 0.7667 en
+> español y 0.8222 en inglés, contra 0.3333 y 0.0667 de este modelo. La
+> inversión significativa en inglés (p=0.0070) es de `ms-marco-MiniLM`,
+> no de los cross-encoders. La conclusión operativa —no cachear— sí se
+> sostiene con ambos, pero por motivos distintos. Ver §9.7.
+
 Latencia medida, por si alguien evalúa el costo: 32.6 y 36.4 ms de media
 por par en dos corridas, en CPU, cubriendo las dos direcciones y sin
 batching. La carga del modelo toma entre 4 y 20 segundos una sola vez,
@@ -447,7 +456,7 @@ Al corpus y script originales (`pairs.py`, `test_threshold.py`) se suman:
 | `test_threshold_v4.py` | Barrido de umbrales, AUC, punto de operación seguro; persiste `resultados_v4.json` |
 | `analyze_contrasts.py` | Contrastes con solapamiento léxico controlado |
 | `significance.py` | Test exacto de permutación sobre AUC y jackknife del margen |
-| `test_reranker.py` | Puntuación con cross-encoder en el mismo esquema JSON |
+| `test_reranker.py` | Puntuación con cross-encoder en el mismo esquema JSON; `--model` elige cuál (ver §9.7) |
 
 Los archivos `.json` guardan las similitudes crudas: el reanálisis no
 requiere recalcular embeddings ni tener Ollama corriendo.
@@ -460,6 +469,140 @@ nuevos de negación que cubren tres mecanismos de inversión de polaridad
 siguen disponibles sin cambios en `pairs.py`, de modo que las cifras de
 §4 se pueden reproducir tal como fueron publicadas, incluidas las que
 §9.0 corrige.
+
+### 9.7 Una predicción registrada, y fallida: BGE-reranker-v2-m3
+
+Antes de correr el segundo cross-encoder se registró una predicción:
+`BAAI/bge-reranker-v2-m3` debía quedar **más invertido** que
+`ms-marco-MiniLM` en el contraste primario, por entrenar sobre el mismo
+objetivo de relevancia consulta-pasaje y con más capacidad para
+explotarlo.
+
+**La predicción falla en los dos idiomas.**
+
+| Contraste primario (paráfrasis alta vs negación) | ms-marco-MiniLM | bge-reranker-v2-m3 |
+|---|---|---|
+| Español | AUC 0.3333, p=0.3636 | AUC **0.7667**, p=0.1174 |
+| Inglés | AUC 0.0667, **p=0.0070** | AUC **0.8222**, p=0.0599 |
+
+No solo no está más invertido: queda del otro lado de 0.50 en ambos.
+
+#### Qué se puede afirmar y qué no
+
+Ningún resultado en español alcanza significancia —p=0.1174 para BGE y
+p=0.3636 para MiniLM—, así que la distancia entre 0.3333 y 0.7667 **no
+se puede reclamar como una diferencia real** a esta n. En inglés BGE
+queda en p=0.0599, sin cruzar 0.05.
+
+La afirmación defendible es *"la predicción falla"*. No es *"BGE
+funciona"*. Es el mismo freno que §9.3 aplicó a `bge-m3`: cuando los
+datos no alcanzan para decidir de qué lado está el efecto, la respuesta
+correcta es que no se sabe.
+
+#### La inversión en inglés no replica
+
+El resultado más fuerte de §9.4 —inversión significativa en inglés,
+p=0.0070— no aparece con el segundo modelo, que apunta en dirección
+contraria. Eso acota el alcance de §9.4 a **`ms-marco-MiniLM`** y le
+quita respaldo al salto de "este modelo" a "los cross-encoders", que la
+propia §9.4 ya advertía no hacer. La advertencia estaba bien puesta; la
+medición ahora la respalda.
+
+#### Observación secundaria: el perfil de falla se repite entre formatos
+
+`bge-reranker-v2-m3` en español da **AUC 1.0000 en temporal y en
+entidad** (p=0.0079 en ambos) y no resuelve polaridad. Es el **mismo
+perfil** que §9.3 midió para `bge-m3` como bi-encoder: resuelve
+limpiamente tiempo y entidad, queda indeterminado en negación.
+
+Dos modelos de la familia m3, dos formatos distintos —bi-encoder y
+cross-encoder—, el mismo modo de falla. Sugiere que la limitación sigue
+al objetivo de entrenamiento y no al formato de puntuación.
+
+**Se registra como observación, no como conclusión.** Son dos modelos de
+una misma familia. No es una muestra de la que se pueda generalizar a
+"los modelos entrenados con este objetivo", y quien quiera sostener eso
+necesita medirlo sobre modelos de familias distintas.
+
+Los dos p=0.0079 están **en el piso** del test exacto a n=5 vs 5: el
+test no puede distinguir ese resultado de cualquier otro igual de
+extremo. Es un bit de información, no una medición fina.
+
+#### La conclusión operativa no se mueve
+
+Que BGE no esté invertido no lo vuelve utilizable. En su mejor punto de
+operación:
+
+- **Español:** umbral 1.0000 → **3 errores de 14** (1 hit falso, 2 de 5
+  hits legítimos perdidos).
+- **Inglés:** umbral 1.0000 → **2 errores de 14** (0 falsos, 2 de 5
+  legítimos perdidos).
+- Contra paráfrasis de bajo solapamiento, el punto que minimiza errores
+  vuelve a ser degenerado: rechazar todo, es decir **no cachear**.
+
+Ordenar bien y cortar bien son cosas distintas. Un AUC alto dice que el
+orden es correcto; un caché necesita el corte, y el corte no está.
+
+#### Las escalas no son comparables entre modelos
+
+`sentence-transformers` aplica la activación que declara el config de
+cada modelo, no una fija:
+
+| Modelo | `activation_fn` | Escala | Rango observado (ES) |
+|---|---|---|---|
+| `cross-encoder/ms-marco-MiniLM-L-6-v2` | `Identity` | logit crudo, sin acotar | −2.07 a 8.95 |
+| `BAAI/bge-reranker-v2-m3` | `Sigmoid` | probabilidad en [0, 1] | 0.1132 a 0.99998 |
+
+**AUC y p-valores sí comparan** entre ambos: dependen solo del orden, y
+la sigmoide es monótona. **Los márgenes no.** Cerca de 1.0 la sigmoide
+comprime, de modo que un margen de 0.0001 en probabilidad puede
+corresponder a una distancia grande en espacio de logit. No leer esos
+márgenes como separación, ni citarlos junto a los −6.27 de §9.4.
+
+`test_reranker.py` ahora detecta la activación y la guarda en el JSON
+(`activation_fn`, `metric_label`), en vez de afirmar una escala fija
+como hacía cuando el modelo estaba hardcodeado.
+
+Sobre la saturación: los `1.0000` de las tablas son **redondeo de
+display**. El máximo real es 0.99998 y no hay ningún valor exactamente
+igual a 1.0. En el contraste primario en español hay **1 empate exacto
+en 45 comparaciones** (AUC 0.7667 con empates, 0.7727 sin ellos) y
+**0 empates** en inglés. El AUC no está inflado por el crédito de 0.5
+que el cálculo asigna a los empates. Se verificó porque, de haber
+saturación real, habría podido fabricar el resultado completo.
+
+#### Latencia
+
+571 ms de media por par contra los 32.6 ms de MiniLM: **~17.5x**. Dos
+corridas de BGE dieron 637.0 y 571.1 ms. La carga del modelo toma 8.4 s
+con caché de disco tibia, y 131 s la primera vez incluyendo la descarga.
+CPU, un par a la vez, sin batching, cubriendo las dos direcciones.
+
+Son 568M de parámetros contra 22M. La cifra es **costo operativo, no
+evidencia sobre la hipótesis**: un modelo más caro no está ni más ni
+menos invertido por serlo.
+
+#### Materiales
+
+| Archivo | Qué contiene |
+|---|---|
+| `resultados_reranker_bge.json` | Puntajes crudos de BGE, con `activation_fn` y `metric_label` |
+| `resultados_reranker_bge.txt` | Salida completa de la corrida |
+| `contrastes_reranker_bge.txt` | Contrastes con solapamiento controlado |
+| `significancia_reranker_bge.txt` | Permutación exacta y jackknife |
+
+Reproducible con:
+
+```powershell
+python test_reranker.py --model BAAI/bge-reranker-v2-m3 > resultados_reranker_bge.txt 2>&1
+python analyze_contrasts.py resultados_reranker_bge.json --metric-label "cross-encoder probability (sigmoid)"
+python significance.py resultados_reranker_bge.json --metric-label "cross-encoder probability (sigmoid)"
+```
+
+`test_reranker.py` toma `--model` y deriva de él los nombres de scope y
+la ruta del JSON, para que dos modelos no se pisen ni se confundan al
+releer. Sin argumento sigue escribiendo `resultados_reranker.json`, el
+nombre citado en §9.6.
 
 ---
 

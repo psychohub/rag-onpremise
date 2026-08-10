@@ -1,0 +1,183 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+==========================================================================
+Cross-encoder reranker scoring -- v4-schema compatible
+==========================================================================
+Model:        BAAI/bge-reranker-v2-m3
+Short name:   bge-reranker-v2-m3   (used in scope names)
+Pairs ES/EN:  31 / 16
+Output:       resultados_reranker_bge.json
+
+NOTE: 'similarity' holds the mean of both directions. It is not a
+      cosine. Its scale depends on the activation the model
+      declares, reported below once the model is loaded. Margins
+      are NOT comparable across activations or to
+      resultados_v4.json. AUC and permutation p-values ARE.
+
+Loading model (first run downloads from HuggingFace)...
+
+Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 393/393 [00:00<00:00, 4762.14it/s]
+Loaded in 8.44s.
+
+Activation:   Sigmoid   (from the model config, not chosen here)
+Metric label: cross-encoder probability (sigmoid)
+
+==========================================================================
+Running: Spanish via bge-reranker-v2-m3  |  Model: BAAI/bge-reranker-v2-m3  |  Pairs: 31
+==========================================================================
+   #  pair           category                qt        tq      mean   |qt-tq|       ms
+   1  neg-01         negation            1.0000    1.0000    1.0000    0.0000    836.7
+   2  neg-02         negation            0.9970    0.9989    0.9980    0.0019    585.2
+   3  neg-03         negation            1.0000    1.0000    1.0000    0.0000    530.0
+   4  neg-06         negation            0.9706    0.9788    0.9747    0.0082    936.1
+   5  neg-07         negation            0.9832    0.9859    0.9845    0.0028    940.9
+   6  neg-08         negation            1.0000    0.9999    0.9999    0.0000    531.9
+   7  neg-09         negation            0.9997    1.0000    0.9998    0.0002    515.2
+   8  neg-10         negation            1.0000    1.0000    1.0000    0.0000    519.5
+   9  neg-11         negation            0.9998    0.9999    0.9999    0.0001    542.6
+  10  cnf-01         confirmatory        1.0000    1.0000    1.0000    0.0000    500.7
+  11  cnf-02         confirmatory        1.0000    1.0000    1.0000    0.0000    791.8
+  12  tmp-01         temporal            0.9954    0.9980    0.9967    0.0026    962.4
+  13  tmp-02         temporal            0.0840    0.1423    0.1132    0.0584    515.0
+  14  tmp-03         temporal            0.5985    0.7239    0.6612    0.1254    511.7
+  15  tmp-04         temporal            0.3617    0.3617    0.3617    0.0000    505.1
+  16  tmp-05         temporal            0.8725    0.8355    0.8540    0.0370    503.6
+  17  ent-01         entity              0.9796    0.9781    0.9788    0.0015    495.9
+  18  ent-02         entity              0.8724    0.9611    0.9168    0.0888    555.4
+  19  ent-03         entity              0.9770    0.9238    0.9504    0.0532    609.8
+  20  ent-04         entity              0.6192    0.4894    0.5543    0.1298    499.0
+  21  ent-05         entity              0.9902    0.9965    0.9933    0.0063    470.0
+  22  par-01         paraphrase-low      0.9998    0.9986    0.9992    0.0012    442.9
+  23  par-02         paraphrase-low      0.9998    0.9995    0.9996    0.0003    517.6
+  24  par-03         paraphrase-low      0.9978    0.9990    0.9984    0.0012    537.7
+  25  par-04         paraphrase-low      0.9971    0.9952    0.9961    0.0019    523.4
+  26  par-05         paraphrase-low      0.9994    0.9987    0.9991    0.0007    498.0
+  27  parhi-01       paraphrase-high     1.0000    1.0000    1.0000    0.0000    473.9
+  28  parhi-02       paraphrase-high     1.0000    1.0000    1.0000    0.0000    493.3
+  29  parhi-03       paraphrase-high     1.0000    1.0000    1.0000    0.0000    621.2
+  30  parhi-04       paraphrase-high     0.9999    0.9999    0.9999    0.0000    498.7
+  31  parhi-05       paraphrase-high     0.9999    0.9998    0.9999    0.0000    488.3
+
+Scope done in 18.0s.
+
+==========================================================================
+Running: English via bge-reranker-v2-m3  |  Model: BAAI/bge-reranker-v2-m3  |  Pairs: 16
+==========================================================================
+   #  pair           category                qt        tq      mean   |qt-tq|       ms
+   1  neg-01-en      negation            1.0000    1.0000    1.0000    0.0000    475.4
+   2  neg-02-en      negation            0.9433    0.9843    0.9638    0.0411    437.3
+   3  neg-03-en      negation            1.0000    1.0000    1.0000    0.0000    449.8
+   4  neg-06-en      negation            0.9354    0.9737    0.9545    0.0383    439.8
+   5  neg-07-en      negation            0.9809    0.9803    0.9806    0.0006    730.3
+   6  neg-08-en      negation            0.9998    0.9999    0.9998    0.0001    664.3
+   7  neg-09-en      negation            1.0000    1.0000    1.0000    0.0000    460.7
+   8  neg-10-en      negation            0.9999    1.0000    0.9999    0.0000    539.6
+   9  neg-11-en      negation            0.9994    0.9994    0.9994    0.0000    569.3
+  10  cnf-01-en      confirmatory        1.0000    1.0000    1.0000    0.0000    705.5
+  11  cnf-02-en      confirmatory        0.9999    1.0000    1.0000    0.0000    708.6
+  12  parhi-01-en    paraphrase-high     1.0000    1.0000    1.0000    0.0000    709.0
+  13  parhi-02-en    paraphrase-high     1.0000    1.0000    1.0000    0.0000    510.8
+  14  parhi-03-en    paraphrase-high     1.0000    1.0000    1.0000    0.0000    554.1
+  15  parhi-04-en    paraphrase-high     1.0000    1.0000    1.0000    0.0000    494.6
+  16  parhi-05-en    paraphrase-high     0.9999    0.9998    0.9998    0.0000    438.5
+
+Scope done in 8.9s.
+
+==========================================================================
+Raw scores written to resultados_reranker_bge.json
+Schema matches resultados_v4.json. Run without modification:
+    python analyze_contrasts.py resultados_reranker_bge.json --metric-label "cross-encoder probability (sigmoid)"
+    python significance.py resultados_reranker_bge.json --metric-label "cross-encoder probability (sigmoid)"
+==========================================================================
+
+==========================================================================
+SCOPE REPORT: ES-bge-reranker-v2-m3
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION (mean of both directions) -- ES-bge-reranker-v2-m3
+--------------------------------------------------------------------------
+  Values are cross-encoder probability (sigmoid) (activation: Sigmoid), NOT cosines.
+  Bounded to [0, 1] and COMPRESSED near the ends: a small
+  numeric gap close to 1.0 can be a large gap in logit space.
+  Do not read these margins as separation.
+
+category          exp       n       min       max      mean    median
+negation          reject    9    0.9747    1.0000    0.9952    0.9999
+temporal          reject    5    0.1132    0.9967    0.5974    0.6612
+entity            reject    5    0.5543    0.9933    0.8787    0.9504
+confirmatory      accept    2    1.0000    1.0000    1.0000    1.0000
+paraphrase-low    accept    5    0.9961    0.9996    0.9985    0.9991
+paraphrase-high   accept    5    0.9999    1.0000    0.9999    1.0000
+
+--------------------------------------------------------------------------
+DIRECTIONAL ASYMMETRY |score_qt - score_tq| -- ES-bge-reranker-v2-m3
+--------------------------------------------------------------------------
+category            n       min       max      mean    median
+negation            9    0.0000    0.0082    0.0015    0.0001
+temporal            5    0.0000    0.1254    0.0447    0.0370
+entity              5    0.0015    0.1298    0.0559    0.0532
+confirmatory        2    0.0000    0.0000    0.0000    0.0000
+paraphrase-low      5    0.0003    0.0019    0.0011    0.0012
+paraphrase-high     5    0.0000    0.0000    0.0000    0.0000
+
+  Mean asymmetry over all pairs: 0.0168
+  Max  asymmetry over all pairs: 0.1298
+  Spread between category means: 0.4026
+  Asymmetry / spread ratio:      0.042
+    -> Direction noise is small relative to the signal.
+
+==========================================================================
+SCOPE REPORT: EN-bge-reranker-v2-m3
+==========================================================================
+
+--------------------------------------------------------------------------
+DISTRIBUTION (mean of both directions) -- EN-bge-reranker-v2-m3
+--------------------------------------------------------------------------
+  Values are cross-encoder probability (sigmoid) (activation: Sigmoid), NOT cosines.
+  Bounded to [0, 1] and COMPRESSED near the ends: a small
+  numeric gap close to 1.0 can be a large gap in logit space.
+  Do not read these margins as separation.
+
+category          exp       n       min       max      mean    median
+negation          reject    9    0.9545    1.0000    0.9887    0.9998
+confirmatory      accept    2    1.0000    1.0000    1.0000    1.0000
+paraphrase-high   accept    5    0.9998    1.0000    0.9999    1.0000
+
+--------------------------------------------------------------------------
+DIRECTIONAL ASYMMETRY |score_qt - score_tq| -- EN-bge-reranker-v2-m3
+--------------------------------------------------------------------------
+category            n       min       max      mean    median
+negation            9    0.0000    0.0411    0.0089    0.0000
+confirmatory        2    0.0000    0.0000    0.0000    0.0000
+paraphrase-high     5    0.0000    0.0000    0.0000    0.0000
+
+  Mean asymmetry over all pairs: 0.0050
+  Max  asymmetry over all pairs: 0.0411
+  Spread between category means: 0.0113
+  Asymmetry / spread ratio:      0.444
+    -> Direction noise is a large fraction of the signal.
+
+==========================================================================
+LATENCY
+==========================================================================
+  Per-pair latency covers BOTH directions, since a symmetric
+  score requires both forward passes.
+
+  Model load (once, warm cache): 8.44s
+
+  scope                     n    mean ms   median ms    min ms    max ms
+  ES-bge-reranker-v2-m3    31      579.1       517.6     442.9     962.4
+  EN-bge-reranker-v2-m3    16      555.5       525.2     437.3     730.3
+
+  Overall mean per pair: 571.1 ms
+  Overall median:        517.6 ms
+
+  Measured on this machine, CPU only, one pair at a time.
+  Batching would lower per-pair cost and is NOT measured here.
+
+==========================================================================
+NO threshold sweep and NO separation analysis are done here.
+Both live in analyze_contrasts.py and significance.py, which
+read the JSON above. This script only produces scores.
+==========================================================================

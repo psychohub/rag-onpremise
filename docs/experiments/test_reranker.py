@@ -30,38 +30,64 @@ resultado publicable por si solo -- no un detalle de implementacion.
 ADVERTENCIAS SOBRE EL CAMPO "similarity"
 ----------------------------------------
 El nombre es heredado del esquema de v4 y se mantiene por
-compatibilidad. Aca NO es un coseno:
+compatibilidad. Aca NO es un coseno.
 
-  - No esta acotado a [-1, 1]. Es un logit crudo del cross-encoder.
-  - No es comparable en escala con los cosenos de resultados_v4.json.
-    Los margenes que reporten analyze_contrasts.py y significance.py
-    sobre este archivo estan en unidades de logit. NO citarlos junto a
-    los margenes en coseno de v4 como si fueran la misma magnitud.
+LA ESCALA DEPENDE DEL MODELO, y no la elige este script.
+sentence-transformers aplica la activacion que el modelo declara en su
+config: `CrossEncoder.activation_fn`. Medido:
+
+  - cross-encoder/ms-marco-MiniLM-L-6-v2 -> Identity. Logits crudos sin
+    acotar (rango observado en ES: -2.07 a 8.95).
+  - BAAI/bge-reranker-v2-m3 -> Sigmoid. Probabilidades en [0, 1]
+    (rango observado en ES: 0.1132 a 0.99998).
+
+Consecuencias, y son la razon por la que el script ahora detecta y
+registra la activacion en el JSON en vez de afirmar una escala fija:
+
+  - Los margenes NO son comparables entre modelos con activaciones
+    distintas, ni con los cosenos de resultados_v4.json. Un margen de
+    0.0001 cerca de p=1 no es "casi cero": la sigmoide comprime, y esa
+    misma distancia en espacio de logit puede ser grande. No citar
+    margenes en probabilidad como si midieran separacion.
   - El AUC y los p-valores de permutacion SI son comparables entre
-    ambos archivos: dependen solo del orden, y cualquier transformacion
-    monotona (sigmoide, identidad) los deja intactos.
+    todos los archivos: dependen solo del orden, y cualquier
+    transformacion monotona (sigmoide, identidad) los deja intactos.
+    Es la unica comparacion entre modelos que este esquema soporta.
 
 Por eso este script no hace barrido de umbrales: un umbral fijo sobre
-un logit sin acotar no se traslada a otro corpus ni a otro modelo.
+una escala que cambia con el modelo no se traslada a otro corpus ni a
+otro modelo.
 
 CAVEAT DE VALIDEZ DE CONSTRUCTO
 --------------------------------
-ms-marco-MiniLM-L-6-v2 fue entrenado para relevancia consulta-pasaje,
-no para equivalencia entre dos consultas. Puntuar (query, twin) le
-pregunta "es twin un pasaje relevante para query", que no es la
-pregunta del cache ("tienen estas dos consultas la misma respuesta").
-Un resultado pobre aca es evidencia de que ESTE modelo no sirve para
-ESTA tarea, no de que los cross-encoders en general no puedan. Decirlo
-asi en cualquier reporte derivado.
+Los cross-encoders de reranking se entrenan para relevancia
+consulta-pasaje, no para equivalencia entre dos consultas. Puntuar
+(query, twin) le pregunta "es twin un pasaje relevante para query", que
+no es la pregunta del cache ("tienen estas dos consultas la misma
+respuesta"). Un resultado pobre es evidencia de que EL MODELO PUNTUADO
+no sirve para ESTA tarea, no de que los cross-encoders en general no
+puedan. Decirlo asi en cualquier reporte derivado, nombrando el modelo.
+
+El caveat aplica a cada modelo que se pase por --model, y aplica con
+mas fuerza cuanto mas cerca este su objetivo de entrenamiento del de
+ms-marco. No se debilita porque el modelo sea mas grande o mas
+multilingue.
 
 Uso:
     python test_reranker.py > resultados_reranker.txt 2>&1
+    python test_reranker.py --model BAAI/bge-reranker-v2-m3 \
+        > resultados_reranker_bge.txt 2>&1
 
-Genera: resultados_reranker.json
+El nombre del JSON y los nombres de scope se derivan del modelo, para
+que dos corridas con modelos distintos no se pisen ni se confundan al
+leer el JSON. Ver MODEL_REGISTRY y derive_names(). Con --out se puede
+forzar otra ruta.
+
+Genera: resultados_reranker.json (o el derivado del modelo)
 
 Luego, sin cambios:
-    python analyze_contrasts.py resultados_reranker.json
-    python significance.py resultados_reranker.json
+    python analyze_contrasts.py <json> --metric-label "cross-encoder logit"
+    python significance.py <json> --metric-label "cross-encoder logit"
 
 Requisitos:
     - pip install sentence-transformers
@@ -70,11 +96,13 @@ Requisitos:
     - No requiere Ollama.
 """
 
+import argparse
 import json
+import re
 import statistics
 import sys
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 try:
     from sentence_transformers import CrossEncoder
@@ -86,12 +114,60 @@ except ImportError:
 from pairs_v3 import PAIRS_ES, PAIRS_EN, CATEGORIES
 
 # -- Configuracion --------------------------------------------
-MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-SHORT_NAME = "ms-marco-MiniLM"
-JSON_OUT = "resultados_reranker.json"
+DEFAULT_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+# Nombres cortos y sufijo de archivo por modelo conocido.
+#
+# El sufijo del primero es "" a proposito: la corrida original escribio
+# resultados_reranker.json y ese nombre esta citado en threshold-safety.md
+# §9.6. Cambiarlo romperia la referencia publicada.
+#
+# Un modelo que no este aca funciona igual: derive_names() arma el nombre
+# corto y el sufijo desde el identificador. La tabla solo existe para que
+# los modelos ya reportados conserven el nombre con que se publicaron.
+MODEL_REGISTRY = {
+    "cross-encoder/ms-marco-MiniLM-L-6-v2": ("ms-marco-MiniLM", ""),
+    "BAAI/bge-reranker-v2-m3": ("bge-reranker-v2-m3", "_bge"),
+}
 
 SEP_HEAVY = "=" * 74
 SEP_LIGHT = "-" * 74
+
+
+def derive_names(model_name: str) -> Tuple[str, str]:
+    """
+    Devuelve (nombre_corto, ruta_json) para un modelo.
+
+    El nombre corto va en los nombres de scope del JSON ("ES-<corto>"),
+    de modo que el scope identifique al modelo que lo produjo. Un scope
+    llamado igual para dos modelos distintos haria que analyze_contrasts
+    y significance reporten sobre archivos indistinguibles.
+    """
+    if model_name in MODEL_REGISTRY:
+        short, suffix = MODEL_REGISTRY[model_name]
+    else:
+        short = model_name.split("/")[-1]
+        suffix = "_" + re.sub(r"[^0-9a-zA-Z]+", "-", short).strip("-").lower()
+    return short, f"resultados_reranker{suffix}.json"
+
+
+def describe_activation(model: "CrossEncoder") -> Tuple[str, str]:
+    """
+    Devuelve (nombre_activacion, metric_label) para el modelo cargado.
+
+    No lo elige este script: sentence-transformers resuelve la activacion
+    desde el config del modelo. Registrarla es obligatorio, porque decide
+    en que escala esta el campo "similarity" y por tanto si los margenes
+    de dos corridas son comparables entre si. Ver el docstring.
+    """
+    fn = getattr(model, "activation_fn", None)
+    name = type(fn).__name__ if fn is not None else "unknown"
+    labels = {
+        "Identity": "cross-encoder logit",
+        "Sigmoid": "cross-encoder probability (sigmoid)",
+        "Softmax": "cross-encoder probability (softmax)",
+    }
+    return name, labels.get(name, f"cross-encoder score ({name})")
 
 
 # -- Puntuacion -----------------------------------------------
@@ -111,10 +187,10 @@ def score_pair(model: "CrossEncoder", query: str, twin: str):
 
 
 def run_pairs(model: "CrossEncoder", pairs: List[Dict[str, Any]],
-              label: str) -> List[Dict[str, Any]]:
+              label: str, model_name: str) -> List[Dict[str, Any]]:
     print("")
     print(SEP_HEAVY)
-    print(f"Running: {label}  |  Model: {MODEL_NAME}  |  Pairs: {len(pairs)}")
+    print(f"Running: {label}  |  Model: {model_name}  |  Pairs: {len(pairs)}")
     print(SEP_HEAVY)
     print(f"{'#':>4s}  {'pair':14s} {'category':16s} "
           f"{'qt':>9s} {'tq':>9s} {'mean':>9s} {'|qt-tq|':>9s} {'ms':>8s}")
@@ -137,7 +213,7 @@ def run_pairs(model: "CrossEncoder", pairs: List[Dict[str, Any]],
             "mechanism": pair.get("mechanism"),
             "language": pair["language"],
             "expected": pair["expected_behavior"],
-            "model": MODEL_NAME,
+            "model": model_name,
             "similarity": mean,          # nombre heredado; logit, no coseno
             "score_qt": qt,
             "score_tq": tq,
@@ -155,12 +231,20 @@ def run_pairs(model: "CrossEncoder", pairs: List[Dict[str, Any]],
 
 
 # -- Reportes -------------------------------------------------
-def print_distribution(results: List[Dict[str, Any]], scope: str) -> None:
+def print_distribution(results: List[Dict[str, Any]], scope: str,
+                       activation: str, metric_label: str) -> None:
     print("")
     print(SEP_LIGHT)
     print(f"DISTRIBUTION (mean of both directions) -- {scope}")
     print(SEP_LIGHT)
-    print("  Values are unbounded cross-encoder logits, NOT cosines.")
+    print(f"  Values are {metric_label} (activation: {activation}), "
+          f"NOT cosines.")
+    if activation == "Identity":
+        print("  Unbounded. Margins are in logit units.")
+    elif activation in ("Sigmoid", "Softmax"):
+        print("  Bounded to [0, 1] and COMPRESSED near the ends: a small")
+        print("  numeric gap close to 1.0 can be a large gap in logit space.")
+        print("  Do not read these margins as separation.")
     print("")
     print(f"{'category':17s} {'exp':7s} {'n':>3s} {'min':>9s} {'max':>9s} "
           f"{'mean':>9s} {'median':>9s}")
@@ -254,27 +338,48 @@ def print_latency(results_by_scope: Dict[str, List[Dict[str, Any]]],
 
 
 # -- Ejecucion ------------------------------------------------
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Puntua los pares de pairs_v3 con un cross-encoder.")
+    parser.add_argument(
+        "--model", default=DEFAULT_MODEL,
+        help=f"Identificador HuggingFace del cross-encoder. "
+             f"Default: {DEFAULT_MODEL}")
+    parser.add_argument(
+        "--out", default=None,
+        help="Ruta del JSON de salida. Por defecto se deriva del modelo "
+             "(ver derive_names).")
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    model_name = args.model
+    short_name, derived_out = derive_names(model_name)
+    json_out = args.out or derived_out
+
     print(SEP_HEAVY)
     print("Cross-encoder reranker scoring -- v4-schema compatible")
     print(SEP_HEAVY)
-    print(f"Model:        {MODEL_NAME}")
+    print(f"Model:        {model_name}")
+    print(f"Short name:   {short_name}   (used in scope names)")
     print(f"Pairs ES/EN:  {len(PAIRS_ES)} / {len(PAIRS_EN)}")
-    print(f"Output:       {JSON_OUT}")
+    print(f"Output:       {json_out}")
     print("")
-    print("NOTE: 'similarity' holds the mean of both directions. It is an")
-    print("      unbounded logit, not a cosine. Margins derived from it are")
-    print("      in logit units and are NOT comparable to resultados_v4.json.")
-    print("      AUC and permutation p-values ARE comparable.")
+    print("NOTE: 'similarity' holds the mean of both directions. It is not a")
+    print("      cosine. Its scale depends on the activation the model")
+    print("      declares, reported below once the model is loaded. Margins")
+    print("      are NOT comparable across activations or to")
+    print("      resultados_v4.json. AUC and permutation p-values ARE.")
 
     print("")
     print("Loading model (first run downloads from HuggingFace)...")
     t_load = time.perf_counter()
     try:
-        model = CrossEncoder(MODEL_NAME)
+        model = CrossEncoder(model_name)
     except Exception as e:
         print("")
-        print(f"ERROR: no se pudo cargar {MODEL_NAME}")
+        print(f"ERROR: no se pudo cargar {model_name}")
         print(f"       {type(e).__name__}: {e}")
         print("       Si es la primera corrida, se necesita red para bajar")
         print("       el modelo. Despues queda cacheado y funciona offline.")
@@ -282,29 +387,41 @@ def main() -> None:
     load_seconds = time.perf_counter() - t_load
     print(f"Loaded in {load_seconds:.2f}s.")
 
+    activation, metric_label = describe_activation(model)
+    print("")
+    print(f"Activation:   {activation}   (from the model config, not chosen here)")
+    print(f"Metric label: {metric_label}")
+    if activation not in ("Identity", "Sigmoid", "Softmax"):
+        print("WARNING: activacion no reconocida. Verificar la escala antes")
+        print("         de comparar margenes con cualquier otra corrida.")
+
     results_by_scope: Dict[str, List[Dict[str, Any]]] = {}
-    results_by_scope[f"ES-{SHORT_NAME}"] = run_pairs(
-        model, PAIRS_ES, f"Spanish via {SHORT_NAME}")
-    results_by_scope[f"EN-{SHORT_NAME}"] = run_pairs(
-        model, PAIRS_EN, f"English via {SHORT_NAME}")
+    results_by_scope[f"ES-{short_name}"] = run_pairs(
+        model, PAIRS_ES, f"Spanish via {short_name}", model_name)
+    results_by_scope[f"EN-{short_name}"] = run_pairs(
+        model, PAIRS_EN, f"English via {short_name}", model_name)
 
     # -- Persistencia --
     # Va ANTES de cualquier resumen. Leccion de v4: un error de formateo
     # no debe destruir el computo.
     payload = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "model": MODEL_NAME,
+        "model": model_name,
+        "activation_fn": activation,
+        "metric_label": metric_label,
         "results_by_scope": results_by_scope,
     }
-    with open(JSON_OUT, "w", encoding="utf-8") as f:
+    with open(json_out, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
     print("")
     print(SEP_HEAVY)
-    print(f"Raw scores written to {JSON_OUT}")
+    print(f"Raw scores written to {json_out}")
     print("Schema matches resultados_v4.json. Run without modification:")
-    print(f"    python analyze_contrasts.py {JSON_OUT}")
-    print(f"    python significance.py {JSON_OUT}")
+    print(f"    python analyze_contrasts.py {json_out} "
+          f"--metric-label \"{metric_label}\"")
+    print(f"    python significance.py {json_out} "
+          f"--metric-label \"{metric_label}\"")
     print(SEP_HEAVY)
 
     # -- Resumenes --
@@ -313,7 +430,7 @@ def main() -> None:
         print(SEP_HEAVY)
         print(f"SCOPE REPORT: {scope}")
         print(SEP_HEAVY)
-        print_distribution(results, scope)
+        print_distribution(results, scope, activation, metric_label)
         print_asymmetry(results, scope)
 
     print_latency(results_by_scope, load_seconds)
