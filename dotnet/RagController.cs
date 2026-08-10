@@ -38,7 +38,12 @@ namespace RagOnPremise.Controllers
 
             _logger.LogInformation("RAG query: {Question}", request.Question);
 
-            var response = await _ragService.QueryAsync(request);
+            // RequestAborted se dispara si el cliente cierra la conexión.
+            // Sin esto, el token que llega a Qdrant y a Ollama es
+            // CancellationToken.None y la generación sigue corriendo en CPU
+            // aunque ya no haya nadie esperando la respuesta.
+            var response = await _ragService.QueryAsync(
+                request, HttpContext.RequestAborted);
             return Ok(response);
         }
 
@@ -48,7 +53,7 @@ namespace RagOnPremise.Controllers
         [HttpGet("test")]
         public async Task<IActionResult> Test()
         {
-            var connected = await _ragService.TestConnectionAsync();
+            var connected = await _ragService.TestConnectionAsync(HttpContext.RequestAborted);
             return Ok(new
             {
                 connected,

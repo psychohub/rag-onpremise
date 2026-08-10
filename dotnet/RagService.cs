@@ -63,7 +63,7 @@ namespace RagOnPremise.Services
                 if (_settings.SemanticCacheEnabled)
                 {
                     var (cacheHit, cachedResponse) = await SearchCacheAsync(
-                        cacheKey, embedding, request.Question);
+                        cacheKey, embedding, request.Question, cancellationToken);
 
                     if (cacheHit && cachedResponse != null)
                         return cachedResponse;
@@ -87,7 +87,8 @@ namespace RagOnPremise.Services
                 // 7. Guardar en el namespace correcto del caché
                 if (_settings.SemanticCacheEnabled)
                 {
-                    await SaveToCacheAsync(cacheKey, embedding, request.Question, response);
+                    await SaveToCacheAsync(
+                        cacheKey, embedding, request.Question, response, cancellationToken);
                 }
 
                 return response;
@@ -252,9 +253,13 @@ namespace RagOnPremise.Services
         // ── Caché semántico ───────────────────────────────────────────────────
 
         private async Task<(bool found, RagQueryResponse? response)>
-            SearchCacheAsync(string cacheKey, float[] embedding, string question)
+            SearchCacheAsync(
+                string cacheKey,
+                float[] embedding,
+                string question,
+                CancellationToken cancellationToken)
         {
-            await _cacheLock.WaitAsync();
+            await _cacheLock.WaitAsync(cancellationToken);
             try
             {
                 if (!_cache.TryGetValue(cacheKey, out var partition))
@@ -286,9 +291,13 @@ namespace RagOnPremise.Services
         }
 
         private async Task SaveToCacheAsync(
-            string cacheKey, float[] embedding, string question, RagQueryResponse response)
+            string cacheKey,
+            float[] embedding,
+            string question,
+            RagQueryResponse response,
+            CancellationToken cancellationToken)
         {
-            await _cacheLock.WaitAsync();
+            await _cacheLock.WaitAsync(cancellationToken);
             try
             {
                 var partition = _cache.GetOrAdd(cacheKey, _ => new List<SemanticCacheEntry>());
