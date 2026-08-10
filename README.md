@@ -82,8 +82,9 @@ rag-onpremise/
 │   └── RagSettings.cs       # Configuración tipada
 ├── docs/
 │   ├── instalacion.md       # Guía de instalación paso a paso
-│   ├── arquitectura.md      # Decisiones de diseño
-│   └── problemas-comunes.md # Troubleshooting
+│   ├── problemas-comunes.md # Troubleshooting
+│   ├── adr/                 # Decisiones de diseño (ver adr/README.md)
+│   └── experiments/         # Experimentos y sus scripts reproducibles
 └── README.md
 ```
 
