@@ -604,6 +604,148 @@ la ruta del JSON, para que dos modelos no se pisen ni se confundan al
 releer. Sin argumento sigue escribiendo `resultados_reranker.json`, el
 nombre citado en §9.6.
 
+## 10. Trabajos relacionados
+
+### 10.0 Nota de proceso
+
+**Este experimento se diseñó y se corrió sin revisar literatura previa.**
+Existe trabajo publicado que anticipa los hallazgos principales: que los
+modelos neuronales de recuperación colapsan la negación, que la
+arquitectura importa menos de lo que uno esperaría, y que en algunos
+dominios la similitud coseno entre un par negado es *más alta* que entre
+oraciones que expertos humanos calificaron como equivalentes.
+
+Esto no se presenta como respaldo encontrado después. Se presenta como lo
+que es: **una revisión que debió hacerse antes y no se hizo.** Buena
+parte de lo que §9.2 y §9.3 llamaron hallazgos son redescubrimientos. Las
+mediciones siguen siendo válidas —son propias, reproducibles y están en
+el repositorio— pero su novedad es menor que la que el reporte original
+sugería, y esta sección existe para corregir esa impresión.
+
+Las referencias de abajo están verificadas. Se citan solo por sus
+hallazgos publicados; no se les atribuye ninguna cifra que no aparezca
+en ellas.
+
+### 10.1 El fenómeno es conocido
+
+**NevIR** (Weller et al., EACL 2024) plantea la tarea directamente: pide
+a modelos de recuperación ordenar dos documentos que difieren únicamente
+por una negación. Sus resultados varían por arquitectura —los
+cross-encoders quedan mejor, luego los de interacción tardía, y al final
+los bi-encoders y las arquitecturas dispersas— pero la conclusión
+general es dura: la mayoría de los modelos, incluidos los del estado del
+arte, rinden **igual o peor que un ordenamiento aleatorio**. Los
+cross-encoders quedan apenas por encima del azar.
+
+Eso encuadra las mediciones de este reporte:
+
+- `nomic-embed-text` es un bi-encoder, y en el contraste primario con
+  solapamiento igualado da AUC 0.1333 (§9.1) — invertido, muy por debajo
+  del 0.50 del azar. Cae en la categoría que NevIR reporta como la peor.
+- Los dos cross-encoders quedan repartidos alrededor del azar: 0.3333
+  (ES) y 0.0667 (EN) para `ms-marco-MiniLM` (§9.4); 0.7667 y 0.8222 para
+  `bge-reranker-v2-m3` (§9.7). Esa dispersión es **consistente** con un
+  desempeño que apenas supera el azar, y explica por qué la predicción
+  de §9.7 falló: si la señal real está cerca del azar, el signo de
+  cualquier medición individual a esta n es poco informativo.
+
+Verbo deliberado: **consistente**, no *confirma*. La tarea de NevIR
+—ordenar dos documentos frente a una consulta— no es la de este reporte
+—decidir si dos consultas comparten respuesta—, y las n de acá no
+permiten confirmar nada.
+
+**La reproducción de NevIR** (SIGIR 2025) replica el resultado y evalúa
+modelos más nuevos, incluyendo el benchmark ExcluIR de consultas
+exclusionarias. Encuentra que los rerankers listwise basados en LLM
+superan a las demás categorías, pero **siguen por debajo del desempeño
+humano**. Es el dato más relevante para cualquiera que piense resolver
+esto poniendo un modelo más grande adelante: la dirección ayuda y no
+cierra la brecha.
+
+### 10.2 La inversión tampoco es nueva
+
+§9.4 y §9.7 tratan la inversión —pares adversos puntuando *por encima*
+de las paráfrasis genuinas— como el resultado más llamativo. No lo es.
+
+Un trabajo de 2021 sobre embeddings de oraciones en el dominio
+biomédico (arXiv 2110.15708) reporta el mismo patrón: en **todos** los
+modelos evaluados, la similitud coseno promedio de los subconjuntos de
+negación y antónimos resultó **más alta** que la del subconjunto de
+oraciones calificadas como altamente similares por expertos humanos.
+
+Otro dominio, otro idioma, otros modelos, mismo patrón. Que este reporte
+lo haya vuelto a encontrar en español administrativo agrega un punto de
+evidencia, no un descubrimiento.
+
+### 10.3 Qué predice HEROS, y una predicción falsable
+
+**HEROS** (arXiv 2306.05083) ofrece la explicación mecánica que §9.2
+buscó y no encontró. §9.2 descartó correctamente que el problema fuera
+el español, pero se quedó sin causa. HEROS propone una: **el objetivo de
+entrenamiento**, no la arquitectura ni el idioma.
+
+Concretamente, encuentra que los encoders ajustados sobre datasets de
+paráfrasis con aprendizaje contrastivo son **muy sensibles** a
+negaciones y antónimos, porque los datasets tipo NLI tratan la negación
+como negativo duro. En cambio, el fine-tuning hecho solo con pares
+pregunta-respuesta los vuelve **insensibles** a la negación.
+
+`nomic-embed-text` se entrena mayormente sobre pares de recuperación.
+Cae del lado insensible, que es exactamente lo que mide §9.1.
+
+> **Predicción falsable, registrada antes de medir (agosto 2026).** Un
+> encoder ajustado sobre NLI debería **separar** el contraste primario
+> (paráfrasis alta vs negación, solapamiento igualado) donde
+> `nomic-embed-text` no separa: AUC materialmente por encima de 0.50 en
+> lugar de 0.1333. Si no separa, HEROS no explica este caso y la causa
+> sigue abierta.
+>
+> **No medido aún.** Se registra acá, con fecha y antes de correr nada,
+> por el motivo que §9.7 dejó sentado: una predicción que se escribe
+> después de ver el resultado no es una predicción.
+
+### 10.4 Qué no cubre la literatura citada
+
+Descontado todo lo anterior, lo que queda como aporte propio de este
+reporte es acotado:
+
+- **El contexto es caché, no ranking.** NevIR y su reproducción miden
+  orden de resultados. Un orden malo **degrada** la respuesta y el
+  usuario lo ve: los documentos equivocados aparecen y se notan. Un hit
+  de caché **omite el LLM por completo** y sirve una respuesta anterior
+  con confianza plena y sin señal de que algo salió mal. El fenómeno
+  subyacente es el mismo; la consecuencia operativa no lo es, y es la
+  que decide si la flag va en `true` o en `false`.
+- **La distinción negación / interrogativa negativa confirmatoria**
+  (§9.0) es específica del español y no aparece en NevIR, que trabaja en
+  inglés. En español "¿No es obligatorio X?" pide confirmar lo mismo que
+  "¿Es obligatorio X?", y un caché correcto debe **aceptar** ese par
+  mientras rechaza la negación declarativa. Es una categoría que la
+  literatura citada no separa.
+- **El error de clasificación de §9.0 y el control de solapamiento
+  léxico de §9.1** son sobre el proceso de este experimento, no sobre
+  los modelos. Que un control mal elegido pueda sostener una conclusión
+  correcta por el motivo equivocado es transferible a quien diseñe un
+  probe parecido.
+
+Ninguno de los tres es un hallazgo sobre modelos de lenguaje. El primero
+es una diferencia de contexto operativo, el segundo una categoría
+lingüística que el benchmark existente no cubre, y el tercero una
+lección de método. Es el tamaño real del aporte una vez descontada la
+literatura, y conviene decirlo así antes que alguien lo diga por uno.
+
+### 10.5 Referencias
+
+1. Weller, O. et al. **"NevIR: Negation in Neural Information
+   Retrieval."** EACL 2024, pp. 2274–2287.
+   <https://aclanthology.org/2024.eacl-long.139/> — arXiv:2305.07614
+2. **"Reproducing NevIR: Negation in Neural Information Retrieval."**
+   SIGIR 2025. arXiv:2502.13506
+3. **"Revealing the Blind Spot of Sentence Encoder Evaluation by
+   HEROS."** arXiv:2306.05083
+4. **"Neural sentence embedding models for semantic similarity
+   estimation in the biomedical domain."** arXiv:2110.15708
+
 ---
 
 *Este reporte es material académico personal. No describe deployment
