@@ -29,6 +29,25 @@ El motivo es el mismo que llevó a resolver la errata de
 lo que se decidió en su momento tiene valor incluso cuando la decisión
 ya no vale.
 
+### Enmiendas: la convención prohíbe reescribir, no agregar
+
+Lo que la convención impide es **reescribir una decisión en silencio**.
+Agregar sí se admite. Cuando una revisión posterior precisa condiciones
+sin cambiar la decisión, va como **enmienda fechada al final del ADR**:
+
+- El cuerpo del ADR queda intacto.
+- La enmienda va después de `References`, dice de dónde viene y con qué
+  fecha, y es autoritativa sobre el punto que precisa.
+- Si el cuerpo tiene afirmaciones que la enmienda condiciona, se admite
+  una marca inline mínima que apunte a ella — mismo mecanismo que las
+  erratas de `threshold-safety.md`.
+
+Cuando lo que cambia es la decisión misma, enmendar no alcanza:
+corresponde un ADR nuevo que supersede al anterior, según lo de arriba.
+La prueba para distinguir un caso del otro es si la partición, el
+mecanismo o la alternativa elegida siguen siendo los mismos. Si siguen,
+es enmienda; si no, es ADR nuevo.
+
 Excepción única: correcciones de un ADR que todavía no se ha commiteado,
 o erratas factuales dentro del mismo ADR marcadas como tales.
 

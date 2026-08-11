@@ -140,6 +140,10 @@ The retrieval layer would cache candidate identifiers and scores, keyed
 on query embedding, collection, embedding model and corpus revision. It
 would not cache chunk text and would not cache authorization outcomes.
 
+> **Amended (August 2026).** Stored scores belong to the query that
+> produced them and must be recomputed against the incoming embedding
+> before they are used to rank or trim. See A2.
+
 On every retrieval hit it would:
 
 1. Confirm the requesting role set currently grants the collection.
@@ -164,6 +168,10 @@ Because the role set is part of the answer-cache key, a user who loses a
 role stops matching the partitions written under it. Their next request
 carries a different key and cannot hit those entries. No invalidation
 pass is required and there is no window.
+
+> **Amended (August 2026).** This holds only where the role set is
+> resolved afresh on each request. Cached claims keep a revoked role
+> presentable, and its partitions reachable, until they expire. See A1.
 
 Two changes would otherwise require invalidation, and both are handled
 by the key rather than by eviction logic:
@@ -284,6 +292,9 @@ Proposed by Ivan Rossouw in the same thread and adopted as written:
 5. Disconnecting a request must release the generation slot within a
    measured bound.
 
+> **Amended (August 2026).** Criterion 5 now carries a procedure for
+> measuring that bound. See A3.
+
 Criteria 1 and 4 are testable against the code as it stands: collection,
 both model identifiers, prompt version and top-K are all in
 `BuildCacheKey`. Criteria 2 and 3 are not, because they depend on the
@@ -309,10 +320,72 @@ for that measurement, not a substitute for it.
 
 ## References
 
-- Thread: Ivan Rossouw, comments of 1 and 8 August 2026 on
+- Thread: Ivan Rossouw, comments of 1, 8 and 11 August 2026 on
   "On-premise RAG without GPU, cloud, or Docker" (dev.to).
 - `docs/experiments/threshold-safety.md` — why the answer cache is
   disabled by default.
+
+## Amendments (August 2026)
+
+These amendments come from Ivan Rossouw's review of the published ADR, in
+his comment of 11 August 2026 on the article thread. They do not alter the
+decision; they make explicit conditions the body took for granted. The
+body is preserved unmodified apart from three inline marks pointing here,
+and where an amendment and the body differ, the amendment is authoritative
+on the point it precises.
+
+### A1 — Immediate revocation requires a freshly resolved role set
+
+Section 4 states that revocation is immediate because the role set is part
+of the key, so a user who loses a role stops matching the partitions
+written under it on their next request.
+
+That is true only if the role set is resolved afresh on every request. If
+the identity arrives with cached claims — a token whose role content was
+issued before the revocation — the request keeps presenting the revoked
+role until the token expires, and the partition stays reachable for that
+interval. Immediacy is not bought by the key. It is bought by the
+authentication boundary.
+
+The condition is now explicit: either the role set is resolved fresh on
+each request, or claims must be versioned such that they cannot remain
+valid across a revocation.
+
+The repository implements no authentication, so this is a precondition for
+whoever integrates it, not outstanding work in the code.
+
+### A2 — Re-score candidates against the incoming embedding
+
+Section 3 proposes caching source identifiers and scores. This amendment
+settles what to do with the scores. If retrieval-cache hits are resolved
+by semantic similarity rather than exact match, the stored scores belong
+to the earlier query, not the incoming one, and must be recomputed against
+the incoming query's embedding before being used to rank or trim.
+
+Sharing the identifiers preserves the saving — vector search is the
+expensive part — while re-scoring avoids ranking by relevance to a
+question nobody asked.
+
+This remains proposed design: no retrieval cache exists in the repository.
+
+### A3 — Acceptance criterion 5, made executable
+
+Criterion 5 asked that disconnecting a request release the generation slot
+within a measured bound. This amendment makes it executable: deliberately
+issue a slow request, disconnect it, and measure when generation capacity
+becomes available again.
+
+State after `d93eab5`: cancellation reaches the interface, the vector
+store call, the model call, the deserializations and the cache lock waits.
+That proves the wiring, not the release. The criterion remains unmet
+because the bound remains unmeasured, and there is now a procedure for
+measuring it.
+
+### What these three cover
+
+Two make design conditions explicit (A1, A2) and one turns an acceptance
+criterion into a procedure (A3). None of them changes the partitioning
+decided in the body.
 
 ---
 
