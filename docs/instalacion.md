@@ -216,9 +216,17 @@ builder.Services.AddScoped<IRagService, RagService>();
   "CollectionName": "mis-documentos",
   "EmbeddingModel": "nomic-embed-text",
   "ChatModel": "mistral",
-  "MaxResults": 5
+  "MaxResults": 5,
+  "SemanticCacheEnabled": false
 }
 ```
+
+`SemanticCacheEnabled` viene en `false` a propósito. El caché semántico
+sirve una respuesta cacheada sin pasar por el LLM, y no existe umbral
+coseno que distinga paráfrasis genuinas de negaciones o cambios de
+entidad con `nomic-embed-text` sobre texto administrativo en español.
+No lo pongas en `true` sin correr el experimento sobre tu propio corpus:
+[docs/experiments/threshold-safety.md](experiments/threshold-safety.md).
 
 4. Probar en Swagger:
 
