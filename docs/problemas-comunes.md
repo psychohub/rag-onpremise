@@ -26,23 +26,26 @@ netstat -ano | findstr :11434
 
 ---
 
-## Qdrant SDK falla con errores gRPC
+## El SDK de Qdrant para .NET falla con errores gRPC
 
 **Síntoma:** `Grpc.Core.RpcException: Status(StatusCode="Internal")` al usar el SDK de Qdrant para .NET.
 
-**Causa:** El SDK oficial usa gRPC por defecto. Qdrant en modo estándar usa HTTP/1.1 REST.
+**Causa:** El SDK de .NET habla gRPC por defecto y falla detrás de proxies o balanceadores HTTP/1.1. Qdrant expone REST en el puerto 6333 y gRPC en el 6334.
 
-**Solución:** No usar el SDK. Usar HttpClient REST directamente:
+**Solución:** En .NET, no usar el SDK. Hablar REST con un cliente nombrado de `IHttpClientFactory`, que es lo que hace `RagService`:
 
 ```csharp
-// ❌ NO usar el SDK
+// ❌ El SDK de .NET usa gRPC
 // var client = new QdrantClient(new Uri(url));
 
-// ✅ HttpClient REST directo
-var response = await _httpClient.PostAsync(
-    $"{qdrantUrl}/collections/{collection}/points/search",
-    content);
+// ✅ REST directo, con el cliente nombrado "qdrant"
+var client = _httpClientFactory.CreateClient("qdrant");
+var response = await client.PostAsync(
+    $"{_settings.QdrantUrl}/collections/{collection}/points/search",
+    content, cancellationToken);
 ```
+
+**Esto no aplica al SDK de Python.** El ingestor usa `qdrant-client`, declarado en `python/requirements.txt`, y lo construye como `QdrantClient(url=cfg["qdrant_url"])` en `python/ingestor.py`. Sin `prefer_grpc=True` el cliente de Python sale por REST contra el 6333, que es el puerto de `qdrant_url` en la configuración de ejemplo. Ahí el SDK oficial es la forma recomendada y no presenta este problema.
 
 ---
 
