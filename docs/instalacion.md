@@ -71,6 +71,45 @@ Register-ScheduledTask `
     -Settings $settings -Principal $principal
 ```
 
+> **El store de modelos depende del perfil bajo el que corra Ollama.**
+> El `ollama pull` de más arriba guarda los modelos en
+> `%USERPROFILE%\.ollama` del usuario que ejecutó el comando. La tarea de
+> este ejemplo corre como `SYSTEM`, cuyo perfil es
+> `C:\Windows\System32\config\systemprofile`, así que el servicio buscaría
+> los modelos en una ruta distinta de la que los recibió. Los dos pasos
+> pueden quedar bajo perfiles distintos, y conviene decidirlo antes de
+> registrar la tarea y no después.
+
+Dos formas de alinearlos, según convenga en el servidor:
+
+- **Registrar la tarea con el mismo usuario que hizo el `ollama pull`**,
+  en vez de `SYSTEM`. Cambiar `-UserId` en `New-ScheduledTaskPrincipal` y
+  ajustar `-LogonType` al tipo de credencial que use ese usuario.
+- **Fijar `OLLAMA_MODELS` a nivel máquina**, apuntando a una ruta que
+  ambos perfiles puedan leer, y descargar los modelos con esa variable ya
+  puesta:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable(
+    "OLLAMA_MODELS", "C:\Services\Ollama\models", "Machine")
+```
+
+### Verificar que el servicio ve los modelos
+
+Después de registrar la tarea, arrancarla y consultar la lista de modelos:
+
+```powershell
+Start-ScheduledTask -TaskName "Ollama"
+(Invoke-WebRequest http://localhost:11434/api/tags -UseBasicParsing).Content
+```
+
+La respuesta debe incluir los modelos del paso anterior. Si devuelve la
+lista vacía (`{"models":[]}`), el servicio está corriendo pero leyendo un
+store distinto al de la descarga: es la misma respuesta que daría un
+Ollama sano al que todavía no le bajaron nada. Verificarlo acá convierte
+lo que si no aparecería como un error en la primera consulta del RAG en
+una comprobación de un solo comando.
+
 ---
 
 ## Paso 2 — Instalar Qdrant
