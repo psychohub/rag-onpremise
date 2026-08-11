@@ -1,6 +1,12 @@
 # Guía de Instalación Paso a Paso
 
-Este documento cubre la instalación completa en Windows Server sin Docker.
+Este documento cubre, de principio a fin, la instalación de la
+infraestructura en Windows Server sin Docker: Ollama, Qdrant y el ingestor
+de Python. Los pasos 1 a 4 se completan tal como están escritos.
+
+La parte .NET es distinta. El repositorio **no incluye un proyecto
+ejecutable**: `dotnet/` son archivos de referencia para integrar en un
+proyecto propio. El paso 5 dice qué tiene que aportar el lector.
 
 ---
 
@@ -224,6 +230,22 @@ python python/ingestor.py
 
 ## Paso 5 — Integrar en ASP.NET Core
 
+> **El repositorio no trae un proyecto ejecutable.** No hay `.csproj`,
+> `.sln` ni `Program.cs`. `dotnet/` son cinco archivos `.cs`
+> —`IRagService.cs`, `RagController.cs`, `RagModels.cs`, `RagService.cs`
+> y `RagSettings.cs`— pensados para integrarse en un proyecto ASP.NET Core
+> que el lector aporta. A diferencia de los pasos anteriores, este no se
+> completa solo con lo que hay en el repositorio.
+
+Si todavía no existe un proyecto donde integrarlos, el mínimo es:
+
+```powershell
+dotnet new webapi -n MiApiRag
+cd MiApiRag
+```
+
+Después:
+
 1. Copiar los archivos de `dotnet/` a su proyecto
 2. Registrar en `Program.cs`:
 
@@ -267,14 +289,43 @@ entidad con `nomic-embed-text` sobre texto administrativo en español.
 No lo pongas en `true` sin correr el experimento sobre tu propio corpus:
 [docs/experiments/threshold-safety.md](experiments/threshold-safety.md).
 
-4. Probar en Swagger:
+### ⚠️ Claves compartidas — sincronización manual
 
+Cuatro claves deben tener **el mismo valor** en los dos archivos, o el 
+retrieval falla silenciosamente:
+
+| Ingestor Python | API .NET |
+|---|---|
+| `qdrant_url` | `QdrantUrl` |
+| `ollama_url` | `OllamaUrl` |
+| `collection_name` | `CollectionName` |
+| `embedding_model` | `EmbeddingModel` |
+
+Si cambiás una en un lado, cambiala en el otro. No hay verificación 
+automática de sincronización.
+
+4. Probar el endpoint. El controlador expone `POST /Rag/query` y espera un
+   cuerpo JSON con `question`. El campo `collection` es opcional: si se
+   omite, usa el `CollectionName` de la configuración.
+
+```powershell
+$body = @{ question = "¿Cuál es el procedimiento para solicitar un permiso?" } |
+    ConvertTo-Json
+
+# El cuerpo va como bytes UTF-8: con acentos y signos de apertura, pasar
+# la cadena directamente los corrompe en Windows PowerShell 5.1.
+Invoke-RestMethod -Method Post `
+    -Uri http://localhost:5000/Rag/query `
+    -ContentType "application/json; charset=utf-8" `
+    -Body ([System.Text.Encoding]::UTF8.GetBytes($body))
 ```
-POST /Rag/query
-{
-  "question": "¿Cuál es el procedimiento para solicitar un permiso?"
-}
-```
+
+Reemplazar el puerto por el que imprima `dotnet run` al arrancar. La
+respuesta trae `answer` y `sources`, y cada fuente trae `filename`, `text`
+y `score`.
+
+Swagger no está disponible sin configurarlo: no lo trae el repositorio ni
+la plantilla `webapi` de .NET 9. Si se lo quiere, hay que agregarlo aparte.
 
 ---
 
