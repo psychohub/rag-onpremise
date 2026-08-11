@@ -40,6 +40,13 @@ semánticamente similar a una consulta ya cacheada. La medida de similitud
 es coseno sobre los embeddings de las dos consultas, con umbral
 configurable (0.92 en la implementación original).
 
+> **Errata (agosto 2026).** El umbral no es configurable, y no lo era
+> cuando se escribió esta línea. Es `SIMILARITY_THRESHOLD`, una
+> `private const float` de `RagService.cs`, y `RagSettings` no expone
+> ninguna propiedad equivalente: no hay clave que poner en
+> `appsettings.json`. Cambiarlo requiere editar el código y recompilar.
+> La cifra 0.92 sí es correcta.
+
 En el hilo del artículo publicado en dev.to, Giulio D'Erme cuestionó la
 seguridad de ese umbral en dominios donde las respuestas dependen de
 distinciones que el modelo de embeddings puede colapsar. Su ejemplo

@@ -29,7 +29,9 @@ namespace RagOnPremise.Models
         ///
         /// ADVERTENCIA DE SEGURIDAD: El caché semántico sirve respuestas previamente
         /// generadas cuando el embedding de la nueva pregunta está cerca de una
-        /// consulta cacheada (similitud coseno sobre el umbral configurado).
+        /// consulta cacheada (similitud coseno sobre SIMILARITY_THRESHOLD, la
+        /// constante 0.92f de RagService — no es una clave de configuración:
+        /// cambiarla requiere editar el código y recompilar).
         /// Pruebas empíricas con nomic-embed-text sobre texto administrativo español
         /// muestran que esto es INSEGURO en esa combinación: pares adversos
         /// (negaciones, cambios de entidad, cambios temporales) alcanzan similitud
