@@ -52,14 +52,33 @@ var response = await _httpClient.PostAsync(
 
 **Causa:** Mistral en CPU tarda 60-120 segundos. El timeout por defecto de HttpClient es 100 segundos.
 
-**Solución:**
+**Solución:** `RagService` no construye `HttpClient`: pide clientes
+nombrados a `IHttpClientFactory` en sus cuatro llamadas. El timeout se
+configura al registrarlos, en el `Program.cs` de su proyecto:
+
 ```csharp
-// ✅ Configurar timeout explícitamente
-using var client = new HttpClient
-{
-    Timeout = TimeSpan.FromSeconds(300)
-};
+builder.Services.Configure<RagSettings>(
+    builder.Configuration.GetSection("RagSettings"));
+
+// Los tres clientes nombrados que RagService pide por nombre.
+// Los nombres deben coincidir carácter por carácter con los de
+// CreateClient(...) en RagService.cs. Si uno no está registrado,
+// IHttpClientFactory no lanza excepción: devuelve un cliente con
+// settings por defecto, incluido Timeout de 100 segundos.
+builder.Services.AddHttpClient("ollama-embedding",
+    c => c.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddHttpClient("ollama-generation",
+    c => c.Timeout = TimeSpan.FromSeconds(300));
+builder.Services.AddHttpClient("qdrant",
+    c => c.Timeout = TimeSpan.FromSeconds(10));
+
+builder.Services.AddScoped<IRagService, RagService>();
 ```
+
+Si el síntoma persiste, revisar que los tres nombres del registro
+coincidan exactamente con los de `CreateClient(...)`: un nombre sin
+registrar no falla al arrancar, devuelve un cliente con el default de
+100 segundos y la generación vuelve a morir en el mismo punto.
 
 ---
 
@@ -87,18 +106,26 @@ using var client = new HttpClient
 
 ---
 
-## El caché devuelve respuestas incorrectas al cambiar de modelo
+## El caché sigue sirviendo respuestas viejas
 
-**Síntoma:** Después de cambiar `ChatModel` en `appsettings.json`, las respuestas siguen siendo las del modelo anterior.
+**Síntoma:** Con `SemanticCacheEnabled` en `true`, una consulta devuelve una respuesta que ya no corresponde a los documentos indexados.
 
-**Causa:** El caché semántico es en memoria y no sabe que cambió el modelo LLM.
+**Lo que ya no es causa:** cambiar `ChatModel`, `EmbeddingModel`, `MaxResults` o la colección. La clave del caché (`BuildCacheKey` en `RagService.cs`) incluye colección, modelo de embeddings, modelo de chat, versión de prompt y top-K. Cambiar cualquiera de esos manda las consultas nuevas a otra partición y deja las entradas viejas inalcanzables por sí solas: no hace falta limpieza manual.
 
-**Solución:** Llamar al endpoint de limpieza de caché:
+**Lo que sí queda descubierto:**
+
+1. **El estado del corpus.** Reingestar, agregar o retirar documentos no cambia la clave, porque no existe contador de revisión del corpus. Está registrado como diseño pendiente en [ADR-001](adr/001-cache-partitioning-by-authorization-scope.md).
+
+2. **Editar el template del prompt sin subir `PROMPT_VERSION`.** Esa constante se incrementa a mano en `RagService.cs`; si no se toca, las respuestas viejas siguen en la misma partición.
+
+**Solución para esos dos casos:**
 ```
 DELETE /Rag/cache/clear
 ```
 
-O reiniciar el servicio API.
+O reiniciar el servicio: el caché es en memoria y no sobrevive al reinicio.
+
+Con la configuración que entrega el repositorio (`SemanticCacheEnabled: false`) este problema no puede ocurrir.
 
 ---
 
@@ -114,7 +141,10 @@ O reiniciar el servicio API.
 Browser → /ChatHandler (servidor web) → API interna → Ollama
 ```
 
-Ver ejemplo en `dotnet/RagController.cs`.
+> **Patrón sugerido, no implementado.** El repositorio no trae ese handler.
+> `dotnet/RagController.cs` expone la API RAG —`query`, `test`,
+> `cache/stats`, `cache/clear`— y no reenvía peticiones de terceros. El
+> diagrama describe la forma de la solución, no código de este repo.
 
 ---
 
@@ -126,7 +156,7 @@ Ver ejemplo en `dotnet/RagController.cs`.
 
 1. **Prompt demasiado restrictivo** — Ajustar el prompt en `RagService.cs` para ser menos estricto.
 
-2. **Caché con respuesta incorrecta** — Limpiar con `DELETE /Rag/cache/clear`.
+2. **Caché con respuesta incorrecta** — Solo aplica si `SemanticCacheEnabled` está en `true`; con el default (`false`) el caché no participa. Limpiar con `DELETE /Rag/cache/clear`.
 
 3. **Modelo muy pequeño** — Modelos de 1-3B parámetros tienen dificultad con español y documentos técnicos. Usar `mistral` (7B) para mejor calidad.
 
