@@ -19,7 +19,11 @@ Cambios respecto de la version anterior de este script
    pares se comportarian bien y cuantos mal.
 
 Uso:
-    python test_threshold_v3.py > resultados_v3.txt 2>&1
+    python test_threshold_v3.py > resultados_v3_run2.txt 2>&1
+
+Una corrida, un archivo. resultados_v3.txt es la corrida publicada;
+redirigir otra encima la borra, y con ella el respaldo de cualquier
+cifra que se haya citado de esa corrida.
 
 Requisitos:
     - Ollama corriendo en http://localhost:11434

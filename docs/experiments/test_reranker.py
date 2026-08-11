@@ -74,9 +74,17 @@ ms-marco. No se debilita porque el modelo sea mas grande o mas
 multilingue.
 
 Uso:
-    python test_reranker.py > resultados_reranker.txt 2>&1
+    python test_reranker.py --out resultados_reranker_run2.json \
+        > resultados_reranker_run2.txt 2>&1
     python test_reranker.py --model BAAI/bge-reranker-v2-m3 \
-        > resultados_reranker_bge.txt 2>&1
+        --out resultados_reranker_bge_run2.json \
+        > resultados_reranker_bge_run2.txt 2>&1
+
+Una corrida, un archivo. Los nombres sin sufijo son los de la corrida
+publicada; correr sin --out y redirigiendo al mismo .txt pisa las dos
+salidas de la corrida anterior y deja sin artefacto cualquier cifra que
+se haya citado de ella. Ya pasó una vez: ver la nota de latencia en
+§9.5 de threshold-safety.md.
 
 El nombre del JSON y los nombres de scope se derivan del modelo, para
 que dos corridas con modelos distintos no se pisen ni se confundan al

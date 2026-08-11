@@ -32,9 +32,14 @@ Que cambia respecto de v3
    a seccion de diagnostico, con el n visible, y no encabeza el reporte.
 
 Uso:
-    python test_threshold_v4.py > resultados_v4.txt 2>&1
+    python test_threshold_v4.py > resultados_v4_run2.txt 2>&1
 
 Genera ademas: resultados_v4.json
+
+Una corrida, un archivo. Los nombres sin sufijo son los de la corrida
+publicada. El .txt se protege con el sufijo, pero JSON_OUT es fijo y se
+reescribe en cada corrida: copiar resultados_v4.json aparte antes de
+volver a correr si hace falta conservarlo.
 
 Requisitos:
     - Ollama corriendo en http://localhost:11434

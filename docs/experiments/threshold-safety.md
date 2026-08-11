@@ -421,8 +421,9 @@ modelo para **esta** tarea, no contra los cross-encoders en general.
 > no de los cross-encoders. La conclusión operativa —no cachear— sí se
 > sostiene con ambos, pero por motivos distintos. Ver §9.7.
 
-Latencia medida, por si alguien evalúa el costo: 32.6 y 36.4 ms de media
-por par en dos corridas, en CPU, cubriendo las dos direcciones y sin
+Latencia medida, por si alguien evalúa el costo: 36.4 ms de media por par
+—47 pares, recalculable desde el campo `latency_ms` de
+`resultados_reranker.json`—, en CPU, cubriendo las dos direcciones y sin
 batching. La carga del modelo toma entre 4 y 20 segundos una sola vez,
 según esté el caché de disco. No se midió el costo end-to-end de una
 consulta completa, así que estas cifras no dicen por sí solas si el paso
@@ -445,6 +446,17 @@ de confirmación cabe en un presupuesto de latencia dado.
 - **§7.** No se observó no determinismo. Comparando 78 pares entre dos
   corridas independientes, las similitudes coinciden a cuatro decimales
   sin ninguna excepción. Se retira esa advertencia.
+- **§9.4 y §9.7, latencia.** Las medias por par salen del campo
+  `latency_ms` de los JSON trackeados y son recalculables desde ahí:
+  `resultados_reranker.json` da 36.4 ms y `resultados_reranker_bge.json`
+  da 571.1 ms, sobre 47 pares cada uno. Versiones anteriores de esas dos
+  secciones citaban además una segunda corrida por modelo —32.6 ms para
+  MiniLM y 637.0 ms para BGE— cuyo artefacto no está en el repositorio: el
+  comando de reproducción documentado redirigía con `>`, así que cada
+  corrida pisaba el `.txt` de la anterior y la primera se perdía. Se
+  retiran ambas cifras. El multiplicador de §9.7 dependía de una de ellas
+  y pasa de ~17.5x a **15.7x**, que es el cociente de las dos medias que
+  sí tienen artefacto. El comando ahora escribe un archivo por corrida.
 
 ### 9.6 Materiales adicionales
 
@@ -573,10 +585,12 @@ saturación real, habría podido fabricar el resultado completo.
 
 #### Latencia
 
-571 ms de media por par contra los 32.6 ms de MiniLM: **~17.5x**. Dos
-corridas de BGE dieron 637.0 y 571.1 ms. La carga del modelo toma 8.4 s
-con caché de disco tibia, y 131 s la primera vez incluyendo la descarga.
-CPU, un par a la vez, sin batching, cubriendo las dos direcciones.
+571.1 ms de media por par contra los 36.4 ms de MiniLM: **15.7x**, que es
+571.1 / 36.4. Las dos medias se recalculan desde el campo `latency_ms` de
+`resultados_reranker_bge.json` y `resultados_reranker.json`, 47 pares cada
+una. La carga del modelo toma 8.4 s con caché de disco tibia, y 131 s la
+primera vez incluyendo la descarga. CPU, un par a la vez, sin batching,
+cubriendo las dos direcciones.
 
 Son 568M de parámetros contra 22M. La cifra es **costo operativo, no
 evidencia sobre la hipótesis**: un modelo más caro no está ni más ni
@@ -594,10 +608,21 @@ menos invertido por serlo.
 Reproducible con:
 
 ```powershell
-python test_reranker.py --model BAAI/bge-reranker-v2-m3 > resultados_reranker_bge.txt 2>&1
-python analyze_contrasts.py resultados_reranker_bge.json --metric-label "cross-encoder probability (sigmoid)"
-python significance.py resultados_reranker_bge.json --metric-label "cross-encoder probability (sigmoid)"
+# Una corrida, un archivo. La corrida publicada quedó en
+# resultados_reranker_bge.txt; para repetir, cambiar el sufijo en vez de
+# sobrescribirla — así se puede comparar entre corridas en vez de perder
+# la anterior.
+python test_reranker.py --model BAAI/bge-reranker-v2-m3 `
+    --out resultados_reranker_bge_run2.json > resultados_reranker_bge_run2.txt 2>&1
+python analyze_contrasts.py resultados_reranker_bge_run2.json --metric-label "cross-encoder probability (sigmoid)"
+python significance.py resultados_reranker_bge_run2.json --metric-label "cross-encoder probability (sigmoid)"
 ```
+
+El `--out` es la otra mitad: sin él, `test_reranker.py` deriva la ruta del
+JSON del `--model` y la reescribe en cada corrida, así que redirigir el
+`.txt` a un archivo nuevo salvaría el log y perdería igual los puntajes
+crudos. Los archivos sin sufijo son los de la corrida publicada, que es la
+que citan las tablas de arriba.
 
 `test_reranker.py` toma `--model` y deriva de él los nombres de scope y
 la ruta del JSON, para que dos modelos no se pisen ni se confundan al
