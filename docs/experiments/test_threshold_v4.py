@@ -32,14 +32,16 @@ Que cambia respecto de v3
    a seccion de diagnostico, con el n visible, y no encabeza el reporte.
 
 Uso:
-    python test_threshold_v4.py > resultados_v4_run2.txt 2>&1
+    python test_threshold_v4.py --out resultados_v4_run2.json \
+        > resultados_v4_run2.txt 2>&1
 
-Genera ademas: resultados_v4.json
+Genera ademas el JSON de --out, que por defecto es resultados_v4.json.
 
 Una corrida, un archivo. Los nombres sin sufijo son los de la corrida
-publicada. El .txt se protege con el sufijo, pero JSON_OUT es fijo y se
-reescribe en cada corrida: copiar resultados_v4.json aparte antes de
-volver a correr si hace falta conservarlo.
+publicada: correr sin --out y redirigiendo al mismo .txt pisa las dos
+salidas de la corrida anterior y deja sin artefacto cualquier cifra que
+se haya citado de ella. Ya paso una vez: ver la nota de latencia en
+§9.5 de threshold-safety.md.
 
 Requisitos:
     - Ollama corriendo en http://localhost:11434
@@ -48,6 +50,7 @@ Requisitos:
     - Python 3.9+ con requests
 """
 
+import argparse
 import json
 import math
 import sys
@@ -76,7 +79,7 @@ SWEEP_START = 0.50
 SWEEP_END = 1.00
 SWEEP_STEP = 0.005
 
-JSON_OUT = "resultados_v4.json"
+DEFAULT_JSON_OUT = "resultados_v4.json"
 
 SEP_HEAVY = "=" * 74
 SEP_LIGHT = "-" * 74
@@ -347,7 +350,20 @@ def print_legacy_diagnostic(results: List[Dict[str, Any]], scope: str) -> None:
 
 
 # -- Ejecucion ------------------------------------------------
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Barrido de umbrales y AUC sobre los pares de pairs_v3.")
+    parser.add_argument(
+        "--out", default=DEFAULT_JSON_OUT,
+        help=f"Ruta del JSON de salida. Una corrida, un archivo: pasar un "
+             f"nombre con sufijo para no pisar una corrida anterior. "
+             f"Default: {DEFAULT_JSON_OUT}")
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    json_out = args.out
     total_embeddings = len(PAIRS_ES) * 2 * len(EMBEDDERS_ES) + len(PAIRS_EN) * 2
 
     print(SEP_HEAVY)
@@ -392,12 +408,12 @@ def main() -> None:
         "sweep": {"start": SWEEP_START, "end": SWEEP_END, "step": SWEEP_STEP},
         "results_by_scope": results_by_scope,
     }
-    with open(JSON_OUT, "w", encoding="utf-8") as f:
+    with open(json_out, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
     print("")
     print(SEP_HEAVY)
-    print(f"Raw similarities written to {JSON_OUT}")
+    print(f"Raw similarities written to {json_out}")
     print("Re-analysis does not require recomputing embeddings.")
     print(SEP_HEAVY)
 
