@@ -2,7 +2,7 @@
 
 Este documento cubre, de principio a fin, la instalación de la
 infraestructura en Windows Server sin Docker: Ollama, Qdrant y el ingestor
-de Python. Los pasos 1 a 4 se completan tal como están escritos.
+de Python. Los pasos 0 a 4 se completan tal como están escritos.
 
 La parte .NET es distinta. El repositorio **no incluye un proyecto
 ejecutable**: `dotnet/` son archivos de referencia para integrar en un
@@ -20,6 +20,24 @@ proyecto propio. El paso 5 dice qué tiene que aportar el lector.
 | OS | Windows Server 2016+ | Windows Server 2022 |
 | .NET | .NET 9 SDK | .NET 9 SDK |
 | Python | 3.11+ | 3.11+ |
+
+---
+
+## Paso 0 — Obtener el repositorio
+
+Los pasos que siguen referencian archivos de este repositorio
+—`python/ingestor.py`, `python/config.example.json`, `dotnet/`—, así que
+lo primero es traerlo:
+
+```powershell
+git clone https://github.com/psychohub/rag-onpremise.git
+cd rag-onpremise
+```
+
+Si el servidor no tiene `git`, descargar el ZIP desde la misma URL
+(botón **Code → Download ZIP**) y extraerlo. Todas las rutas relativas de
+esta guía —`python/…`, `dotnet/…`— son relativas a esa carpeta, y los
+comandos asumen que es el directorio actual.
 
 ---
 
@@ -184,9 +202,19 @@ Start-ScheduledTask -TaskName "Qdrant"
 5. Copiar a `C:\Python311\get-pip.py`
 6. Ejecutar: `C:\Python311\python.exe C:\Python311\get-pip.py`
 
-### Instalación offline (servidor sin internet)
+### Instalar las dependencias del ingestor
 
-En una PC con internet:
+Sin este paso, el paso 4 falla con `ModuleNotFoundError`. Hay dos rutas
+según el servidor tenga salida a internet o no.
+
+**Con internet** — desde la raíz del repositorio (paso 0):
+
+```powershell
+pip install -r python/requirements.txt
+```
+
+**Sin internet** — descargar los paquetes en una PC que sí tenga:
+
 ```powershell
 pip download watchdog pdfplumber python-docx openpyxl qdrant-client ollama langchain-text-splitters `
     --python-version 311 --only-binary=:all: --platform win_amd64 `
@@ -198,6 +226,11 @@ Copiar `C:\paquetes_offline` al servidor y ejecutar:
 pip install --no-index --find-links C:\paquetes_offline `
     watchdog pdfplumber python-docx openpyxl qdrant-client ollama langchain-text-splitters
 ```
+
+Son los siete paquetes de `python/requirements.txt`. La ruta con internet
+lee ese archivo; la ruta sin internet los lista a mano en los dos
+comandos, así que si alguna vez se agrega una dependencia hay que
+actualizarla también acá.
 
 ---
 
