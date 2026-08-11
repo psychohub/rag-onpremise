@@ -252,17 +252,25 @@ Usuario hace una pregunta
 
 ## ⚠️ Lecciones aprendidas (las que duelen)
 
-### 1. Qdrant SDK usa gRPC — usar REST directo
+### 1. El SDK de Qdrant para .NET usa gRPC — usar REST directo
+
+El SDK de .NET habla gRPC por defecto y falla detrás de proxies o
+balanceadores HTTP/1.1. Qdrant expone REST en el puerto 6333 y gRPC en el
+6334. En .NET, hablar REST con un cliente nombrado de
+`IHttpClientFactory`, que es lo que hace `RagService`:
 
 ```csharp
-// ❌ El SDK de .NET usa gRPC y falla con Qdrant en HTTP/1.1
+// ❌ El SDK de .NET usa gRPC
 // var client = new QdrantClient(new Uri(url));
 
-// ✅ HttpClient REST directo
-var response = await _httpClient.PostAsync(
-    $"{qdrantUrl}/collections/{collection}/points/search",
-    content);
+// ✅ REST directo, con el cliente nombrado "qdrant"
+var client = _httpClientFactory.CreateClient("qdrant");
+var response = await client.PostAsync(
+    $"{_settings.QdrantUrl}/collections/{collection}/points/search",
+    content, cancellationToken);
 ```
+
+**Esto no aplica al SDK de Python.** El ingestor usa `qdrant-client`, declarado en `python/requirements.txt`, y lo construye como `QdrantClient(url=cfg["qdrant_url"])` en `python/ingestor.py`. Sin `prefer_grpc=True` el cliente de Python sale por REST contra el 6333, que es el puerto de `qdrant_url` en la configuración de ejemplo. Ahí el SDK oficial es la forma recomendada y no presenta este problema.
 
 ### 2. Timeout de HttpClient mata las respuestas
 
