@@ -202,9 +202,12 @@ namespace RagOnPremise.Services
 
         // ── Generación con LLM ────────────────────────────────────────────────
         // IMPORTANTE: Mistral en CPU tarda 60-120 segundos.
-        // El cliente "ollama-generation" se configura con Timeout = 300s
-        // en Program.cs. Además, propagamos CancellationToken para liberar
-        // recursos si el cliente desconecta durante la generación.
+        // El cliente "ollama-generation" debe registrarse con Timeout = 300s
+        // — ver el snippet de registro en el README, sección "Integrar en tu
+        // API .NET". Si el nombre no está registrado, IHttpClientFactory
+        // devuelve un cliente con el default de 100s y la generación se corta.
+        // Además, propagamos CancellationToken para liberar recursos si el
+        // cliente desconecta durante la generación.
 
         private async Task<string> GenerateAnswerAsync(
             string question, string context, CancellationToken cancellationToken)

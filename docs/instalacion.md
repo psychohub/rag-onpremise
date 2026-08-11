@@ -191,7 +191,19 @@ python python/ingestor.py
 ```csharp
 builder.Services.Configure<RagSettings>(
     builder.Configuration.GetSection("RagSettings"));
-builder.Services.AddHttpClient();
+
+// Los tres clientes nombrados que RagService pide por nombre.
+// Los nombres deben coincidir carácter por carácter con los de
+// CreateClient(...) en RagService.cs. Si uno no está registrado,
+// IHttpClientFactory no lanza excepción: devuelve un cliente con
+// settings por defecto, incluido Timeout de 100 segundos.
+builder.Services.AddHttpClient("ollama-embedding",
+    c => c.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddHttpClient("ollama-generation",
+    c => c.Timeout = TimeSpan.FromSeconds(300));
+builder.Services.AddHttpClient("qdrant",
+    c => c.Timeout = TimeSpan.FromSeconds(10));
+
 builder.Services.AddScoped<IRagService, RagService>();
 ```
 

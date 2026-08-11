@@ -144,7 +144,19 @@ Copiar los archivos de `dotnet/` a tu proyecto y registrar en `Program.cs`:
 ```csharp
 builder.Services.Configure<RagSettings>(
     builder.Configuration.GetSection("RagSettings"));
-builder.Services.AddHttpClient("ollama");
+
+// Los tres clientes nombrados que RagService pide por nombre.
+// Los nombres deben coincidir carácter por carácter con los de
+// CreateClient(...) en RagService.cs. Si uno no está registrado,
+// IHttpClientFactory no lanza excepción: devuelve un cliente con
+// settings por defecto, incluido Timeout de 100 segundos.
+builder.Services.AddHttpClient("ollama-embedding",
+    c => c.Timeout = TimeSpan.FromSeconds(30));
+builder.Services.AddHttpClient("ollama-generation",
+    c => c.Timeout = TimeSpan.FromSeconds(300));
+builder.Services.AddHttpClient("qdrant",
+    c => c.Timeout = TimeSpan.FromSeconds(10));
+
 builder.Services.AddScoped<IRagService, RagService>();
 ```
 
@@ -254,13 +266,30 @@ var response = await _httpClient.PostAsync(
 
 ### 2. Timeout de HttpClient mata las respuestas
 
-```csharp
-// ❌ Default 100s — Mistral en CPU tarda 60-120s
-var client = new HttpClient();
+El default de `HttpClient` es 100 segundos y Mistral en CPU tarda 60-120.
+La generación muere a mitad de camino con `TaskCanceledException`.
 
-// ✅ Configurar explícitamente
-var client = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
+`RagService` no construye `HttpClient` a mano: pide clientes nombrados a
+`IHttpClientFactory`. El timeout se configura al registrarlos, no en el
+punto de uso.
+
+```csharp
+// ❌ Nombre que nadie pide → los que sí se piden quedan sin registrar,
+//    y un nombre sin registrar devuelve un cliente con Timeout de 100s.
+//    IHttpClientFactory no lanza excepción: el cliente funciona hasta
+//    que la generación pasa de 100 segundos.
+builder.Services.AddHttpClient("ollama");
+
+// ✅ Registrar cada nombre que el servicio pide, con su timeout
+builder.Services.AddHttpClient("ollama-generation",
+    c => c.Timeout = TimeSpan.FromSeconds(300));
 ```
+
+Los tres nombres del registro deben coincidir carácter por carácter con
+los de `CreateClient(...)` en `RagService.cs` — registro completo en
+[Integrar en tu API .NET](#4-integrar-en-tu-api-net). No hay verificación
+en tiempo de compilación: un typo en el nombre produce silenciosamente un
+cliente con el default de 100 segundos.
 
 ### 3. Ollama no acepta conexiones externas por defecto
 
